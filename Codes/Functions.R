@@ -37,9 +37,11 @@ colorPalatte <- c(
   "brown"
 )
 
-getHead <- function(dataframe){
-  print(dataframe[1:5, 1:5])
-}
+getHead <- function(dataframe){print(dataframe[1:5, 1:5])}
+
+getUnemptyList <- function(chrList){ chrList[!is.na(chrList) & chrList != '' ]}
+
+
 
 Plot.tsne.gene.expr <- function(tsne.gene.df, GENE_NAME){
   MAX_VAL = 7.35

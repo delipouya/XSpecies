@@ -6,7 +6,7 @@ Initialize()
 # import the resolution list and start the analysis
 
 ## -------------------------------------------- import input Data 
-input_from_10x <- "Data/"
+input_from_10x <- "Data/rat_Rnor/"
 seur <- CreateSeuratObject(counts=Read10X(input_from_10x),
                            min.cells=1,min.features=1, 
                            project = "snRNAseq")
@@ -56,7 +56,7 @@ gridExtra::grid.arrange(p1,p2,p3,nrow=1,ncol=3)
 ### inspecting mitochondrial expression
 mito_gene_identifier <- "^Mt-" 
 mads_thresh <- 12
-hard_thresh <- 70
+hard_thresh <- 80
 
 mito_thresh <- median(seur$percent.mt) + mad(seur$percent.mt) * mads_thresh
 drop_mito <- seur$percent.mt > mito_thresh | seur$percent.mt > hard_thresh

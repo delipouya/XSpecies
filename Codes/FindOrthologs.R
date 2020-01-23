@@ -13,7 +13,7 @@ Initialize()
 # Missing genes in species were given an ‘‘A’’ value.
 
 
-geneSymbolsMapped <- readRDS('objects/5.DEgeneSymbolsMappedEntrez.rds')
+geneSymbolsMapped <- readRDS('objects/rat_Rnor/5.DEgeneSymbolsMappedEntrez.rds')
 lapply(geneSymbolsMapped, head)
 
 aGeneSetTable <- geneSymbolsMapped[[1]]
@@ -42,7 +42,8 @@ geneVectorMapped <- getBM(filters="ensembl_gene_id",
                           attributes= c('ensembl_gene_id',ortho_attr),
                           values=geneVector, mart= ensembl)
 
-geneOrthologs <- merge(aGeneSetTable, geneVectorMapped, by.x='ensembl_gene_id', by.y='ensembl_gene_id', all.x=T)
+geneOrthologs <- merge(aGeneSetTable, geneVectorMapped, by.x='ensembl_gene_id', 
+                       by.y='ensembl_gene_id', all.x=T)
 View(head(geneOrthologs,20))
 
 

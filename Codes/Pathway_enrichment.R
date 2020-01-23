@@ -40,6 +40,8 @@ geneSymbolsMapped <- lapply(geneSymbolsToMap, function(aGeneSymbolTable){
 lapply(geneSymbolsMapped, head)
 saveRDS(geneSymbolsMapped, 'objects/5.DEgeneSymbolsMappedEntrez.rds')
 
+
+
 ## removing the rows(genes symbols) which were not mapped
 GenesToEnrich <- lapply(geneSymbolsMapped, function(aGeneTable)as.character(aGeneTable$entrezgene_id[!is.na(aGeneTable$entrezgene_id)]))
 
@@ -59,9 +61,11 @@ EnrichmentResult_filt <- lapply(EnrichmentResult, function(anEnrichmentTable){
   return(anEnrichmentTable)
 })
 
+
 lapply(EnrichmentResult, dim)
 lapply(EnrichmentResult_filt, dim)
 head(EnrichmentResult_filt[[1]])
+
 
 anEnrichmentRes = EnrichmentResult_filt[[1]]
 pdf('~/Desktop/pathwayEnrichment.pdf', height = 20, width = 20)

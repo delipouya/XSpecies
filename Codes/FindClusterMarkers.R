@@ -11,9 +11,11 @@ TsneDF <- getTsneDF(seur)
 PcaDF <- getPcaDF(seur)
 UmapDF <- getUmapDF(seur)
 
+pdf('~/Desktop/rat_clusters.pdf')
 ggplot(TsneDF, aes(tSNE_1, tSNE_2, color=clusters))+geom_point()+theme_bw()+ggtitle(paste0('Resolution: ', RES))
 ggplot(PcaDF, aes(PC_1, PC_2, color=clusters))+geom_point()+theme_bw()+ggtitle(paste0('Resolution: ', RES))
 ggplot(UmapDF, aes(UMAP_1, UMAP_2, color=clusters))+geom_point()+theme_bw()+ggtitle(paste0('Resolution: ', RES))
+dev.off()
 
 
 ## we're going with 1.2 resolution
@@ -35,5 +37,8 @@ listOfMarkers <- sapply(1:length(listOfIdentityCLasses),
 names(listOfMarkers) <- listOfIdentityCLasses
 saveRDS(listOfMarkers, 'objects/4.listOfMarkers.rds')
 lapply(listOfMarkers, head) 
+
+
+
 
 
