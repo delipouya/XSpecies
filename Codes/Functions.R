@@ -1,24 +1,30 @@
 ## This script includes functions needed in the analysis 
 ## and need to be loaded in the beginning of scripts
 
+# function to check to see if packages are installed. 
+#  Install them if they are not, then load them into the R session.
+ipak <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    BiocManager::install(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
+
+## loading required packages    
 Initialize <- function(){
   options(stringsAsFactors = FALSE)
-  library("Seurat")
-  library("BiocManager")
-  library("devtools")
-  library("Matrix")
-  library(scran)
-  library(AnnotationDbi)
-  library(org.Hs.eg.db)
-  library(scClustViz)
-  library(presto)
-  library(ggplot2)
-  library('pathfindR')
-  library("biomaRt")
-  library("ReactomePA")
-  library(stringr)
-  library('org.Rn.eg.db')
+  
+  if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  
+  options(stringsAsFactors = FALSE)
+  listOfPackages <- c('BiocManager', 'Seurat', 'viridis', 'org.Rn.eg.db', 'stringr', 'ReactomePA',  'biomaRt', 
+                      'pathfindR', 'ggplot2', 'presto', 'scClustViz', 'org.Hs.eg.db', 'AnnotationDbi', 
+                      'scran', 'Matrix', 'devtools', 'AUCell', 'GSEABase','GSVA')
+  ipak(listOfPackages)
 }
+
 
 
 colorPalatte <- c(
@@ -44,31 +50,11 @@ getUnemptyList <- function(chrList){ chrList[!is.na(chrList) & chrList != '' ]}
 
 
 Plot.tsne.gene.expr <- function(tsne.gene.df, GENE_NAME){
-  MAX_VAL = 7.35
-  MIN_VAL = 0  
-  ggplot(tsne.gene.df, aes(x=tSNE_1, y=tSNE_2, color=gene.expr))+
-    geom_point(alpha=0.8)+theme_bw()+ggtitle(GENE_NAME) + 
-    theme(plot.title = element_text(hjust = 0.5))+ xlab('tSNE1')+ylab('tSNE2')+
-    scale_colour_gradientn(name='Expression',
-                           colours = c("gray","orange","red","red2","red4"),
-                           values = c(0, 1, 2, 4, 7.35), 
-                           breaks=c(0, 1, 2, 4, 7.35), 
-                           limits=c(0, 7.35),
-                           labels=c('Min', '', '','' ,'Max')) 
-  
-}
-
-Plot.tsne.gene.expr_2 <- function(tsne.gene.df, GENE_NAME){
   ggplot(tsne.gene.df, aes(x=tSNE_1, y=tSNE_2, color=gene.expr))+
     geom_point(alpha=0.6)+theme_bw()+ggtitle(GENE_NAME) + 
-    theme(plot.title = element_text(hjust = 0.5))+ xlab('tSNE1')+ylab('tSNE2')+
-    scale_colour_gradientn(name='Expression',colours = c("gray",'orange',"tomato",'orangered',"red", "red2","red4"),
-                           values = c(min(gene.expr), max(gene.expr)/6,max(gene.expr)/5,
-                                      max(gene.expr)/4,max(gene.expr)/3,max(gene.expr)/2,
-                                      max(gene.expr))) 
-  
-  
+    theme(plot.title = element_text(hjust = 0.5))+ xlab('tSNE1')+ylab('tSNE2')+scale_color_viridis(direction = -1)
 }
+
 
 getTsneDF <- function(seur){
   listOfClusters <- as.character(Idents(seur))

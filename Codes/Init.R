@@ -1,296 +1,157 @@
+## Run this script as: 
+# Rscript Codes/Init.R 'rat_Rnor' 50 1500
+
+options(echo=TRUE) # if you want see commands in output file
+args <- commandArgs(trailingOnly = TRUE)
+print(args)
+
+INPUT_NAME = args[1] 
+MIT_CUT_OFF = as.numeric(args[2])
+LIB_SIZE_CUT_OFF = as.numeric(args[3])
+PC_NUMBER = 18
+MADS_CUT_OFF = 12
+
+
 source('Codes/Functions.R')
 Initialize()
 
-## ToDO ## 
-# have the subsequent code ready in order to do the rest of the analysis
-# import the resolution list and start the analysis
+## Define cut-ff values
+# MIT_CUT_OFF = 50 
+# LIB_SIZE_CUT_OFF = 1500
+# INPUT_NAME = 'rat_Rnor'
 
-## -------------------------------------------- import input Data 
-input_from_10x <- "Data/rat_Rnor/"
-seur <- CreateSeuratObject(counts=Read10X(input_from_10x),
-                           min.cells=1,min.features=1, 
+# MIT_CUT_OFF = median(seur$mito_perc) + mad(seur$mito_perc) * MADS_CUT_OFF
+TITLE = paste0('mito threshold: ', MIT_CUT_OFF,' , library size threshold: ', LIB_SIZE_CUT_OFF)
+OBJ_NAME_NORM = paste0('1.seur_normed_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.rds')
+OBJ_NAME_DIM_RED = paste0('2.seur_dimRed_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.rds')
+
+## import the data
+input_from_10x <- paste0("Data/", INPUT_NAME,'/')
+seur <- CreateSeuratObject(counts=Read10X(input_from_10x, gene.column = 1),
+                           min.cells=0,min.features=1, 
                            project = "snRNAseq")
-summary(seur$nCount_RNA)
-row.names(seur)[grep( pattern = 'Mt-', row.names(seur))]
 
+dim(seur)
+seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
+seur[['RNA']] <- AddMetaData(seur[['RNA']], seur_genes_df$V2, col.name = 'symbol')
 
-seur[["percent.mt"]] <- PercentageFeatureSet(seur, pattern = '^Mt-')
-show(seur)
+mito_genes_index <- grep(pattern = '^Mt-', seur[['RNA']]@meta.features$symbol )
+seur[["mito_perc"]] <- PercentageFeatureSet(seur, features = mito_genes_index)
+
+## adding ensemble id as a meta data to the object
+
 getHead(GetAssayData(seur@assays$RNA))
-
 libSize <- colSums(GetAssayData(seur@assays$RNA))
+summary(libSize)
 
 
-pdf('init_results.pdf')
-par(mfrow=c(1,1))
-hist(libSize, main = 'Histogram of library size')
+print(paste0('Total number of cells: ', ncol(seur)))
+
+to_drop_mito <- seur$mito_perc > MIT_CUT_OFF
+print(paste0('to_drop_mito: ',sum(to_drop_mito)))
+
+to_drop_lib_size <- seur$nCount_RNA < LIB_SIZE_CUT_OFF
+print(paste0('to_drop_lib_size: ', sum(to_drop_lib_size)))
+
+print(paste0('remained after both filters: ', sum(!to_drop_lib_size & !to_drop_mito)))
+
+df = data.frame(library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expressed=seur$nFeature_RNA)
 
 
-## -------------------------------------------- QC and filtering the cells
-# The [[ operator can add columns to object metadata. This is a great place to stash QC stats
-## visualizing metrics
-p1=ggplot(data.frame(seur$nCount_RNA), aes(seur.nCount_RNA))+
+
+## Visualization of QC metrics
+pdf(paste0('Results/',INPUT_NAME,'/QC_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.pdf'))
+
+ggplot(data.frame(seur$nCount_RNA), aes(seur.nCount_RNA))+
   geom_histogram(bins = 60,color='black',fill='pink',alpha=0.5)+
-  theme_bw()+ggtitle('library size for all cells')+xlab('Library sizes')+
-  ylab('Number of cells')
-p1
-summary(seur$nCount_RNA)
+  theme_bw()+ggtitle('library size for all cells (before filter)')+xlab('Library sizes')+
+  ylab('Number of cells')+labs(caption = INPUT_NAME)
 
-## distribuiton of number of genes with 
-## expression value higher than zero for each cell
-p2=ggplot(data.frame(seur$nFeature_RNA), aes(seur.nFeature_RNA))+
+ggplot(data.frame(seur$nFeature_RNA), aes(seur.nFeature_RNA))+
   geom_histogram(bins = 60,color='black',fill='blue',alpha=0.3)+
-  theme_bw()+ggtitle('# expressed genes for all cells')+xlab('Number of expressed genes')+
-  ylab('Number of cells')
-p2
-## proportion of reads mapped to the mitochondrian genes for each cell
-## -> high proportion means low quality cells
-p3=ggplot(data.frame(seur$percent.mt), aes(seur.percent.mt))+
+  theme_bw()+ggtitle('# expressed genes for all cells(before filtering)')+xlab('Number of expressed genes')+
+  ylab('Number of cells')+labs(caption = INPUT_NAME)
+
+ggplot(data.frame(seur$mito_perc), aes(seur.mito_perc))+
   geom_histogram(bins = 60,color='black',fill='green',alpha=0.3)+
-  theme_bw()+ggtitle('proportion of reads mapped to Mt genes')+xlab('Mitochondrial proportion (%)')+
-  ylab('Number of cells')
-p3
-gridExtra::grid.arrange(p1,p2,p3,nrow=1,ncol=3)
+  theme_bw()+ggtitle('proportion of reads mapped to Mt genes(before filtering)')+xlab('Mitochondrial proportion (%)')+
+  ylab('Number of cells')+labs(caption = INPUT_NAME)
+
+ggplot(df, aes(x=library_size, y=mito_perc, color=library_size))+geom_point()+scale_color_viridis()+
+  theme_bw()+xlab('Library Size')+ylab('Mitochondrial transcript percent')+
+  geom_hline(yintercept= MIT_CUT_OFF, linetype="dashed", color = "red")+labs(caption = INPUT_NAME)+
+  geom_vline(xintercept = LIB_SIZE_CUT_OFF, linetype="dashed", color = "red3", size=0.5)+
+  ggtitle(paste0('mito threshold: ', MIT_CUT_OFF,' , library size threshold: ', LIB_SIZE_CUT_OFF, ' (before filter)'))
+
+ggplot(df, aes(x=library_size, y=n_expressed, color=mito_perc))+geom_point()+labs(caption = INPUT_NAME)+
+  theme_bw()+xlab('Library Size')+ylab('Number of expressed genes')+scale_color_viridis(option = 'magma')+ggtitle('before filter')
+
+ggplot(df, aes(x=library_size, y=n_expressed))+geom_point(color='darkblue')+theme_bw()+xlab('Library Size')+
+  ylab('Number of expressed genes')+geom_point(data=df[to_drop_mito,],pch=4,color="red")+labs(caption = INPUT_NAME)+
+  scale_color_viridis(option='magma', direction = 1)+ggtitle('before filter, labels: high-mito cells')+labs(caption = INPUT_NAME)
 
 
-### inspecting mitochondrial expression
-mito_gene_identifier <- "^Mt-" 
-mads_thresh <- 12
-hard_thresh <- 80
-
-mito_thresh <- median(seur$percent.mt) + mad(seur$percent.mt) * mads_thresh
-drop_mito <- seur$percent.mt > mito_thresh | seur$percent.mt > hard_thresh
-summary(seur$percent.mt[drop_mito])
-sum(drop_mito)
-mean(seur$percent.mt)
-median(seur$percent.mt)
-
-par(mar=c(3,3,2,1),mgp=2:0)
-hist(seur$percent.mt,breaks=50,xlab="% mitochondrial mRNA")
-abline(v=mito_thresh,col="red",lwd=2)
-mtext(paste(paste0(round(mean(seur$percent.mt,2)),"% mean mitochondrial mRNA"),
-            paste0(min(mito_thresh, hard_thresh), '% threshold'),
-            paste0(sum(drop_mito)," cells removed"),
-            sep="\n"),
-      side=3,line=-3,at=mito_thresh,adj=-0.05)
-
-
-temp_col <- colorspace::sequential_hcl(100,palette="Viridis",alpha=0.5,rev=T)
-par(mfrow=c(1,2),mar=c(3,3,2,1),mgp=2:0)
-
-plot(seur$nCount_RNA,seur$nFeature_RNA,log="xy",pch=20,
-     xlab="nCount_RNA",ylab="nFeature_RNA",
-     col=temp_col[cut(c(0,1,seur$percent.mt),100,labels=F)[c(-1,-2)]])
-
-legend("topleft",bty="n",title="Mito %",
-       legend=c(0,50,100),pch=20,col=temp_col[c(1,50,100)])
-
-plot(seur$nCount_RNA,seur$nFeature_RNA,log="xy",pch=20,
-     xlab="nCount_RNA",ylab="total_features",
-     col=temp_col[cut(c(0,1,seur$percent.mt),100,labels=F)[c(-1,-2)]])
-points(seur$nCount_RNA[drop_mito],seur$nFeature_RNA[drop_mito],
-       pch=4,col="red")
-legend("topleft",bty="n",pch=4,col="red",
-       title=paste("Mito % >",round(mito_thresh,2)),
-       legend=paste(sum(drop_mito),"cells"))
-
-
-## filtering based on mitochondrial expression
-seur <- seur[,!drop_mito]
+seur <- seur[,!to_drop_mito & !to_drop_lib_size]
 show(seur)
-
-
-# It is important to manually inspect the relationship between library size and 
-# gene detection rates per cell to identify obvious outliers. In this case, we’ve identified a 
-# population of cells with a different relationship between library size and complexity, as well as one
-# cell with a clearly outlying library size.
-
-# FeatureScatter is typically used to visualize feature-feature relationships, but can be used
-# for anything calculated by the object, i.e. columns in object metadata, PC scores etc.
-feature.df <- data.frame(nCount_RNA=seur$nCount_RNA,percent.mt=seur$percent.mt)
-p1=ggplot(feature.df, aes(x=nCount_RNA, y=percent.mt))+geom_point()+theme_bw()
-feature.df <- data.frame(nCount_RNA=seur$nCount_RNA,nFeature_RNA=seur$nFeature_RNA)
-p2=ggplot(feature.df, aes(x=nCount_RNA, y=nFeature_RNA))+geom_point()+theme_bw()
-gridExtra::grid.arrange(p1,p2,nrow=1,ncol=2)
-
-
-filt_intercept <- 60
-filt_slope <- .1
-to_inspect <- seur$nFeature_RNA < (seur$nCount_RNA * filt_slope + filt_intercept)
-sum(to_inspect)
-temp_col <- colorspace::sequential_hcl(100,palette="Viridis",alpha=0.5,rev=T)
-
-par(mfrow=c(1,2),mar=c(3,3,2,1),mgp=2:0)
-plot(seur$nCount_RNA,seur$nFeature_RNA,log="",pch=20,
-     xlab="nCount_RNA",ylab="total_features",
-     main="Select outliers to inspect",
-     col=temp_col[cut(c(0,1,seur$percent.mt),100,labels=F)[c(-1,-2)]])
-legend("topleft",bty="n",title="Mito %",legend=c(0,50,100),pch=20,col=temp_col[c(1,50,100)])
-abline(filt_intercept,filt_slope,lwd=2,col="red")
-
-
-plot(seur$nCount_RNA,seur$nFeature_RNA,log="xy",pch=20,
-     xlab="nCount_RNA",ylab="total_features",
-     main="Select outliers to inspect",
-     col=temp_col[cut(c(0,1,seur$percent.mt),100,labels=F)[c(-1,-2)]])
-points(seur$nCount_RNA[to_inspect],seur$nFeature_RNA[to_inspect],pch=1,col="red")
-legend("topleft",bty="n",pch=1,col="red",legend="Outliers")
-
-summary(seur$nCount_RNA)
-summary(seur$nFeature_RNA)
-
-seur <- seur[,!to_inspect]
 dim(seur)
 
+df_filt = data.frame(library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expressed=seur$nFeature_RNA)
+ggplot(df_filt, aes(x=library_size, y=mito_perc, color=library_size))+geom_point()+scale_color_viridis()+
+  theme_bw()+xlab('Library Size')+ylab('Mitochondrial transcript percent')+labs(caption = INPUT_NAME)+
+  ggtitle(paste0('mito threshold: ', MIT_CUT_OFF,' , library size threshold: ', LIB_SIZE_CUT_OFF, ' (after filter)'))
 
-# Filtering cells based on the proportion of mitochondrial gene transcripts per cell.
-## A high proportion of mitochondrial gene transcripts are indicative of poor quality cells, 
-# probably due to compromised cell membranes.
 
-## --------------------------------------  Normalization
-seur <- SCTransform(seur,conserve.memory=T,verbose=F)
-# "iteration limit reached" warning can be safely ignored
-show(seur)
-saveRDS(seur, 'objects/1.seur_normed.rds')
 
-## -------------------------------------- PCA
-seur <- FindVariableFeatures(seur, assay = 'RNA')
-seur <- RunPCA(seur,assay="RNA",verbose=F) # Data has not been scaled. Please run ScaleData and retry
+## Normalization
+seur <- NormalizeData(seur, normalization.method = "LogNormalize", scale.factor = 10000)
+dim(seur[['RNA']]@data)
 
-seur <- RunPCA(seur,assay="SCT",verbose=F)
-par(mfrow=c(1,1))
+## Finding variable genes
+seur <- FindVariableFeatures(seur, selection.method = "vst", nfeatures = 2000)
+head(seur[['RNA']]@var.features)
+
+## scaling data
+seur <- ScaleData(seur, features = rownames(seur))
+
+## alternative: 
+# seur <- SCTransform(seur,conserve.memory=F,verbose=T,return.only.var.genes=F,variable.features.n = nrow(seur[['RNA']]))
+dim(seur)
+saveRDS(seur, paste0('objects/',INPUT_NAME,'/',OBJ_NAME_NORM))
+
+##  PCA
+seur <- RunPCA(seur,verbose=F)
 plot(100 * seur@reductions$pca@stdev^2 / seur@reductions$pca@misc$total.variance,
      pch=20,xlab="Principal Component",ylab="% variance explained",log="y")
 
-sum(seur@reductions$pca@stdev^2/seur@reductions$pca@misc$total.variance) ## check this!!?? 
 
 
-## -------------------------------------- tSNE
-# Select the number of principle components to use in downstream analysis, and set n_pc accordingly.
-n_pc <- 20
-seur <- RunTSNE(seur,dims=1:n_pc,reduction="pca",perplexity=30)
+## tSNE
+seur <- RunTSNE(seur,dims=1:PC_NUMBER,reduction="pca",perplexity=30)
 
-plot_tsne(cell_coord=getEmb(seur,"tsne"),
-          md=getMD(seur)$nFeature_SCT,
-          md_title=("nFeature_SCT"),
-          md_log=F)
-plot_tsne(cell_coord=getEmb(seur,"tsne"),
-          md=getMD(seur)$percent.mt,
-          md_title=("percent.mt: "),
-          md_log=F)
+TITLE_tsne = paste0('tSNE (',TITLE,')')
+df_tsne <- data.frame(tSNE_1=getEmb(seur, 'tsne')[,1], tSNE_2=getEmb(seur, 'tsne')[,2], 
+                      library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expressed=seur$nFeature_RNA) 
 
-## -------------------------------------- UMAP
-# Playing with the perplexity parameter can improve the visualization. Perplexity can be interpretted as the number of nearby cells to consider when trying to minimize distance between neighbouring cells.
+ggplot(df_tsne, aes(x=tSNE_1, y=tSNE_2, color=library_size))+geom_point()+theme_bw()+scale_color_viridis(direction= -1)+ggtitle(TITLE_tsne)+labs(caption = INPUT_NAME)
+ggplot(df_tsne, aes(x=tSNE_1, y=tSNE_2, color=mito_perc))+geom_point()+theme_bw()+scale_color_viridis(direction= -1)+ggtitle(TITLE_tsne)+labs(caption = INPUT_NAME)
+ggplot(df_tsne, aes(x=tSNE_1, y=tSNE_2, color=n_expressed))+geom_point()+theme_bw()+scale_color_viridis(direction= -1)+ggtitle(TITLE_tsne)+labs(caption = INPUT_NAME)
 
-# only run if you've installed UMAP - see ?RunUMAP
-seur <- RunUMAP(seur,dims=1:n_pc,reduction="pca")
 
-plot_tsne(cell_coord=getEmb(seur,"umap"),
-          md=getMD(seur)$nFeature_SCT,
-          md_title="nFeature_SCT",
-          md_log=F)
-plot_tsne(cell_coord=getEmb(seur,"umap"),
-          md=getMD(seur)$percent.mt,
-          md_title="percent.mt",
-          md_log=F)
+##UMAP
+seur <- RunUMAP(seur,dims=1:PC_NUMBER, reduction="pca")
 
-saveRDS(seur, 'objects/2.seur_dimRed.rds')
-seur <- readRDS('objects/2.seur_dimRed.rds')
+saveRDS(seur, paste0('objects/',INPUT_NAME,'/',OBJ_NAME_DIM_RED))
+
+TITLE_umap = paste0('UMAP (',TITLE,')')
+df_umap <- data.frame(UMAP_1=getEmb(seur, 'umap')[,1], UMAP_2=getEmb(seur, 'umap')[,2], 
+                      library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expressed=seur$nFeature_RNA )
+
+ggplot(df_umap, aes(x=UMAP_1, y=UMAP_2, color=library_size))+geom_point()+theme_bw()+scale_color_viridis(direction = -1)+ggtitle(TITLE_umap)+labs(caption = INPUT_NAME)
+ggplot(df_umap, aes(x=UMAP_1, y=UMAP_2, color=mito_perc))+geom_point()+theme_bw()+scale_color_viridis(direction = -1)+ggtitle(TITLE_umap)+labs(caption = INPUT_NAME)
+ggplot(df_umap, aes(x=UMAP_1, y=UMAP_2, color=n_expressed))+geom_point()+theme_bw()+scale_color_viridis(direction = -1)+ggtitle(TITLE_umap)+labs(caption = INPUT_NAME)
+
 dev.off()
-## -------------------------------------- Iterative clustering with scClustViz
-
-# Seurat implements an interpretation of SNN-Cliq (https://doi.org/10.1093/bioinformatics/btv088) 
-# for clustering of single-cell expression data. They use PCs to define the distance metric, then embed the 
-# cells in a graph where edges between cells (nodes) are weighted based on their similarity (euclidean distance in PCA space). 
-# These edge weights are refined based on Jaccard distance (overlap in local neighbourhoods), and then communities (“quasi-cliques”) are identified in the graph
-# using a smart local moving algorithm (SLM, http://dx.doi.org/10.1088/1742-5468/2008/10/P10008) to optimize the modularity measure of the defined communities in the graph.
-# This code block iterates through “resolutions” of the Seurat clustering method, testing each for overfitting. Overfitting is determined by testing differential 
-# expression between all pairs of clusters using a wilcoxon rank-sum test. If there are no significantly differentially expressed genes between nearest 
-# neighbouring clusters, iterative clustering is stopped. The output is saved as an sCVdata object for use in scClustViz.
-
-source('Codes/Functions.R')
-Initialize()
-seur <- readRDS('objects/2.seur_dimRed.rds')
-n_pc = 20
-max_seurat_resolution <- 1.8
-## ^ change this to something large (5?) to ensure iterations stop eventually.
-output_filename <- "objects/3.seur_clustered.RData"
-FDRthresh <- 0.01 # FDR threshold for statistical tests
-min_num_DE <- 10
-seurat_resolution <- 0 # Starting resolution is this plus the jump value below.
-seurat_resolution_jump <- 0.05
-
-seur <- FindNeighbors(seur,reduction="pca",dims=1:n_pc,verbose=F)
-
-sCVdata_list <- list()
-DE_bw_clust <- TRUE
-while(DE_bw_clust) {
-  if (seurat_resolution >= max_seurat_resolution) { break }
-  seurat_resolution <- seurat_resolution + seurat_resolution_jump 
-  # ^ iteratively incrementing resolution parameter 
-  
-  seur <- FindClusters(seur,resolution=seurat_resolution,verbose=F)
-  
-  message(" ")
-  message("------------------------------------------------------")
-  message(paste0("--------  res.",seurat_resolution," with ",
-                 length(levels(Idents(seur)))," clusters --------"))
-  message("------------------------------------------------------")
-  
-  if (length(levels(Idents(seur))) <= 1) { 
-    message("Only one cluster found, skipping analysis.")
-    next 
-  } 
-  # ^ Only one cluster was found, need to bump up the resolution!
-  
-  if (length(sCVdata_list) >= 1) {
-    temp_cl <- length(levels(Clusters(sCVdata_list[[length(sCVdata_list)]])))
-    if (temp_cl == length(levels(Idents(seur)))) { 
-      temp_cli <- length(levels(interaction(
-        Clusters(sCVdata_list[[length(sCVdata_list)]]),
-        Idents(seur),
-        drop=T
-      )))
-      if (temp_cli == length(levels(Idents(seur)))) { 
-        message("Clusters unchanged from previous, skipping analysis.")
-        next 
-      }
-    }
-  }
-  
-  curr_sCVdata <- CalcSCV(
-    inD=seur,
-    assayType="SCT",
-    assaySlot="counts",
-    cl=Idents(seur), 
-    # ^ your most recent clustering results get stored in the Seurat "ident" slot
-    exponent=NA, 
-    # ^ going to use the corrected counts from SCTransform
-    pseudocount=NA,
-    DRthresh=0.1,
-    DRforClust="pca",
-    calcSil=T,
-    calcDEvsRest=T,
-    calcDEcombn=T
-  )
-  
-  DE_bw_NN <- sapply(DEneighb(curr_sCVdata,FDRthresh),nrow)
-  # ^ counts # of DE genes between neighbouring clusters at your selected FDR threshold
-  message(paste("Number of DE genes between nearest neighbours:",min(DE_bw_NN)))
-  
-  if (min(DE_bw_NN) < min_num_DE) { DE_bw_clust <- FALSE }
-  # ^ If no DE genes between nearest neighbours, don't loop again.
-  
-  sCVdata_list[[paste0("res.",seurat_resolution)]] <- curr_sCVdata
-}
 
 
-# cleaning redundant metadata
-# seur@meta.data <- seur@meta.data[,colnames(seur@meta.data) != "seurat_clusters"]
-# seur@meta.data <- seur@meta.data[,!grepl("^SCT_snn_res",colnames(seur@meta.data))]
-
-# shrinks the size of the Seurat object by removing the scaled matrix
-seur <- DietSeurat(seur,dimreducs=Reductions(seur))
-save(sCVdata_list,seur,file=output_filename)
 
 

@@ -25,6 +25,9 @@ geneVector <- geneVector[!is.na(geneVector)]
 listMarts()
 ensembl <- useMart("ensembl")
 datasets <- listDatasets(ensembl)
+datasets[grep('Rat', datasets$description), ]
+
+
 ensembl = useDataset('rnorvegicus_gene_ensembl',mart=ensembl)
 
 ## checking the appropiate filter and attribute to use
@@ -38,6 +41,7 @@ ortho_attr <- c('hsapiens_homolog_ensembl_gene', 'hsapiens_homolog_associated_ge
                 'hsapiens_homolog_orthology_type', 'hsapiens_homolog_perc_id', 
                 'hsapiens_homolog_perc_id_r1', 'hsapiens_homolog_orthology_confidence')
 
+
 geneVectorMapped <- getBM(filters="ensembl_gene_id",
                           attributes= c('ensembl_gene_id',ortho_attr),
                           values=geneVector, mart= ensembl)
@@ -48,13 +52,8 @@ View(head(geneOrthologs,20))
 
 
 
-
-
 ## this gives an error
 getBM(filters="rgd_symbol",
       attributes= c('rgd_symbol', "ensembl_gene_id",'entrezgene_id', ortho_attr),values=test, mart= ensembl)
-
-
-
 
 
