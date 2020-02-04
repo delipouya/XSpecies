@@ -103,80 +103,31 @@ cells_rankings <- readRDS(paste0(AUCell_dir,"cells_rankings.rds" ))
 cells_AUC <- readRDS(paste0(AUCell_dir, "cells_AUC.rds"))
 
 
+
 ## converting it to a data frame structure
 cells_AUC_df = data.frame(getAUC(cells_AUC))
+
 ## Normalizing to consider probabilistic interpretation 
 cells_AUC_df_norm <- mapply(`/`, cells_AUC_df,  colSums(cells_AUC_df))  ## normalizing each column to have a probabilistic point of view
 rownames(cells_AUC_df_norm) <- rownames(cells_AUC_df)
 rough_cell_type_assignment <- rownames(cells_AUC_df_norm)[apply(cells_AUC_df_norm,2,which.max)]
 cbind(table(rough_cell_type_assignment)) ## 93% are the hepatocytes!!
 
-
+## visualzing rough estimation
 cell_tsne <- data.frame(tSNE_1 = getEmb(seur, 'tsne')[,1], tSNE_2 = getEmb(seur, 'tsne')[,2], cell_type=rough_cell_type_assignment)
 ggplot(cell_tsne, aes(x=tSNE_1, y=tSNE_2, color=cell_type))+geom_point(alpha=0.5)+theme_bw()
-
-Cell_type_assigned <- sapply(1:length(cells_assignment), function(i) cells_assignment[[i]][['assignment']], simplify = F)
-names(Cell_type_assigned) <- names(cells_assignment)
 
 
 par(mfrow=c(4,3)) 
 cells_assignment <- AUCell_exploreThresholds(cells_AUC, plotHist=TRUE, assign=TRUE) 
 saveRDS(cells_assignment, file=paste0(AUCell_dir, "cells_assignment.rds"))
 
+Cell_type_assigned <- sapply(1:length(cells_assignment), function(i) cells_assignment[[i]][['assignment']], simplify = F)
+names(Cell_type_assigned) <- names(cells_assignment)
 
 
-gsva_result <- gsva(exprMatrix, candidateGenes_mapped)
-saveRDS(gsva_result, '~/Desktop/gsva_result.rds')
-gsva_result <- readRDS('~/Desktop/gsva_result.rds')
-getHead(gsva_result)
-
-pdf(paste0(AUCell_dir,'/marked_AUCell.pdf'))
-for (index in 1:length(Cell_type_assigned)){
-  
-  print(index)
-  marked_cells <- Cell_type_assigned[[index]]
-  marked_cells_name <- names(Cell_type_assigned)[index]
-  
-  ####### GSVA results
-  cell_tsne_gsva <- data.frame(tSNE_1 = getEmb(seur, 'tsne')[,1],
-                              tSNE_2 = getEmb(seur, 'tsne')[,2], 
-                              gsva=as.numeric(gsva_result[index,]) ) 
-  
-  p = ggplot(cell_tsne_gsva, aes(x=tSNE_1, y=tSNE_2, color=gsva))+geom_point(alpha=0.8)+
-    theme_bw()+ggtitle(paste0(marked_cells_name, ' gsva results'))+scale_color_viridis(direction=-1)
-  print(p)
-  
-  ####### AUCell results, total expression
-  cell_tsne_exp <- data.frame(tSNE_1 = getEmb(seur, 'tsne')[,1],
-                              tSNE_2 = getEmb(seur, 'tsne')[,2], 
-                              expression=as.numeric(cells_AUC_df[index,]) ) 
-  
-  p1 = ggplot(cell_tsne_exp, aes(x=tSNE_1, y=tSNE_2, color=expression))+geom_point(alpha=0.8)+
-    theme_bw()+ggtitle(marked_cells_name)+scale_color_viridis(direction=-1)
-  print(p1)
-  
-  ####### AUCell results, threshold added
-  isMarked <- colnames(seur) %in% marked_cells
-  cell_tsne <- data.frame(tSNE_1 = getEmb(seur, 'tsne')[,1], 
-                          tSNE_2 = getEmb(seur, 'tsne')[,2], 
-                          label=ifelse(isMarked,'Marked','-') ) 
-  
-  p2 = ggplot(cell_tsne, aes(x=tSNE_1, y=tSNE_2, color=label))+geom_point(alpha=0.8)+theme_bw()+
-    ggtitle(marked_cells_name)+scale_color_manual(values = c('cadetblue1','dodgerblue4'))
-  print(p2)
-}
-dev.off()
 
 
-### Checking how consistent gsva and AUCell results are
-pdf('~/Desktop/scoring_correlations.pdf')
-for(i in 1:length(Cell_type_assigned)){
-  print(i)
-  cor_df <- data.frame(gsva=as.numeric(gsva_result[i,]), AUCell=as.numeric(cells_AUC_df[i,]))
-  p=ggplot(cor_df, aes(x=gsva, y=AUCell))+geom_point()+theme_bw()+ggtitle(names(Cell_type_assigned)[i])
-  print(p)
-}
-dev.off()
 
 
 
