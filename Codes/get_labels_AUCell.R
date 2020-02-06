@@ -55,13 +55,6 @@ saveRDS(cells_rankings, paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" )
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings) # the top 4 percent are being considered: can change with: aucMaxRank
 saveRDS(cells_AUC, file=paste0(AUCell_dir, "cells_AUC_",OUTPUT_NAME,".rds"))
 
-
-
-cells_rankings <- readRDS(paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
-cells_AUC <- readRDS(paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
-
-
-
 ## converting it to a data frame structure
 cells_AUC_df = data.frame(getAUC(cells_AUC))
 
