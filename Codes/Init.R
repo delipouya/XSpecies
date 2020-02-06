@@ -60,7 +60,7 @@ df = data.frame(library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expr
 
 
 ## Visualization of QC metrics
-pdf(paste0('Results/',INPUT_NAME,'/QC_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.pdf'))
+pdf(paste0('Results/',INPUT_NAME,'/QC/QC_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.pdf'))
 
 ggplot(data.frame(seur$nCount_RNA), aes(seur.nCount_RNA))+
   geom_histogram(bins = 60,color='black',fill='pink',alpha=0.5)+
@@ -103,6 +103,9 @@ ggplot(df_filt, aes(x=library_size, y=mito_perc, color=library_size))+geom_point
 
 
 ## Normalization
+### SCTransform
+
+
 seur <- NormalizeData(seur, normalization.method = "LogNormalize", scale.factor = 10000)
 dim(seur[['RNA']]@data)
 

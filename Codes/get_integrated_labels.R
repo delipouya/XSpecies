@@ -1,55 +1,53 @@
-### This sctipt needs to be revised
-## SCINA method does not provide output for one of the cell types
-## need to solve that and visualize again
+## Run this script as: 
+# Rscript Codes/get_labels_SCINA.R 'rat_Rnor' '2.seur_dimRed_rat_Rnor_mito_50_lib_1500.rds'
 
+options(echo=TRUE) # if you want see commands in output file
+args <- commandArgs(trailingOnly = TRUE)
+print(args)
 
 source('Codes/Functions.R')
 Initialize()
+# INPUT_NAME = 'rat_Rnor'
+# INPUT_FILE = '2.seur_dimRed_rat_Rnor_mito_50_lib_1500.rds'
+INPUT_NAME = args[1] 
+INPUT_FILE = args[2]
 PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
-SPECIES_NAME = 'rat_Rnor'
+OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
+AUCell_dir = paste0("Results/",INPUT_NAME,"/AUCell/")
+
+
+gsva_result <- readRDS(paste0('Results/',INPUT_NAME,'/GSVA/GSVA_',OUTPUT_NAME,'.rds'))
+SCINA_res <- readRDS(paste0('Results/',INPUT_NAME,'/SCINA/','SCINA_',OUTPUT_NAME,'.rds'))
+
+cells_assignment <- readRDS(file=paste0(AUCell_dir, "cells_assignment_",OUTPUT_NAME,".rds"))
+Cell_type_assigned <- sapply(1:length(cells_assignment), function(i) cells_assignment[[i]][['assignment']], simplify = F)
+names(Cell_type_assigned) <- names(cells_assignment)
+
+cells_AUC <- readRDS(paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
+cells_AUC_df = data.frame(getAUC(cells_AUC))
+
+
+
 
 ### importing expression matrix and list of markers
 candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_table.rds'))
 candidateGenes_mapped <- lapply(candidateGenes_mapped_df, 
                                 function(x) getUnemptyList(x$rnorvegicus_homolog_ensembl_gene))
 
-seur <- readRDS(paste0('objects/',SPECIES_NAME,'/2.seur_dimRed_rat_Rnor_mito_50_lib_1500.rds'))
+seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
 exprMatrix <- as.matrix(seur[['RNA']]@data)
-
-
-#### AUCell
-AUCell_dir = paste0("Results/",SPECIES_NAME,"/AUCell_myData/")
-cells_assignment <- readRDS(paste0(AUCell_dir, "cells_assignment.rds"))
-Cell_type_assigned <- sapply(1:length(cells_assignment), function(i) cells_assignment[[i]][['assignment']], simplify = F)
-names(Cell_type_assigned) <- names(cells_assignment)
-
-
-### GSVA 
-gsva_result <- readRDS(paste0('Results/',SPECIES_NAME,'/GSE/gsva_result.rds'))
-getHead(gsva_result)
-
-
-### SCINA
-SCINA_res <- readRDS(paste0('Results/',SPECIES_NAME,'/SCINA/SCINA_result.rds'))
-
-
-
-## fix this later
-names(Cell_type_assigned) =names(geneSets) 
 
 
 ### Checking how consistent gsva and AUCell results are
 
-list_of_cells_to_check <- rownames(SCINA_res$probabilities)
-pdf(paste0(AUCell_dir,'/marked_AUCell.pdf'), height = 14, width = 18)
+pdf(paste0("Results/",INPUT_NAME,'/labeling_',OUTPUT_NAME,'.pdf'), height = 14, width = 18)
 
-for (i in 1:length(list_of_cells_to_check)){ #length(Cell_type_assigned)
+for (index in 1:length(Cell_type_assigned)){ 
   
-  index = list_of_cells_to_check[i]
   print(index)
-  marked_cells <- Cell_type_assigned[[which(names(Cell_type_assigned) == index)]]
-  marked_cells_name <- index
-  #names(Cell_type_assigned)[index]
+  marked_cells <- Cell_type_assigned[[index]]
+  marked_cells_name <- names(Cell_type_assigned)[index]
+  
   labeling_df<- data.frame(gsva=as.numeric(gsva_result[index,]), 
                            AUCell=as.numeric(cells_AUC_df[index,]),
                            AUCell_label=ifelse(colnames(seur) %in% marked_cells,'Marked','-'),
@@ -100,6 +98,7 @@ for (i in 1:length(list_of_cells_to_check)){ #length(Cell_type_assigned)
   gridExtra::grid.arrange(p_tsne_1, p_tsne_2, p_tsne_3, p_tsne_4, ncol=2, nrow=2)
 }
 dev.off()
+
 
 
 
