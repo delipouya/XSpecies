@@ -7,7 +7,7 @@ for input_name in rat_Rnor rat_DA rat_Lew_01 rat_Lew_02; do
     echo ${input_name}
     echo ${input_file##*/}
     Rscript Codes/get_labels_AUCell.R ${input_name} ${input_file##*/}
-    Rscript Codes/get_labels_GSVA.R ${input_name} ${input_file##*/}
+    #Rscript Codes/get_labels_GSVA.R ${input_name} ${input_file##*/}
     Rscript Codes/get_labels_SCINA.R ${input_name} ${input_file##*/}
     Rscript Codes/get_integrated_labels.R ${input_name} ${input_file##*/}
   done

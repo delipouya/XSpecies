@@ -1,1 +1,3 @@
-BiocManager::install("celda")
+library("SoupX")
+library('multtest')
+library("celda")
