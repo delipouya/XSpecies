@@ -16,7 +16,7 @@ OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
 AUCell_dir = paste0("Results/",INPUT_NAME,"/AUCell/")
 
 
-gsva_result <- readRDS(paste0('Results/',INPUT_NAME,'/GSVA/GSVA_',OUTPUT_NAME,'.rds'))
+# gsva_result <- readRDS(paste0('Results/',INPUT_NAME,'/GSVA/GSVA_',OUTPUT_NAME,'.rds'))
 SCINA_res <- readRDS(paste0('Results/',INPUT_NAME,'/SCINA/','SCINA_',OUTPUT_NAME,'.rds'))
 
 cells_assignment <- readRDS(file=paste0(AUCell_dir, "cells_assignment_",OUTPUT_NAME,".rds"))
@@ -40,7 +40,7 @@ exprMatrix <- as.matrix(seur[['RNA']]@data)
 
 ### Checking how consistent gsva and AUCell results are
 
-pdf(paste0("Results/",INPUT_NAME,'/labeling_',OUTPUT_NAME,'.pdf'), height = 14, width = 18)
+pdf(paste0("Results/",INPUT_NAME,'/labeling_',OUTPUT_NAME,'.pdf'), height = 10, width = 15)
 
 for (index in 1:length(Cell_type_assigned)){ 
   
@@ -48,14 +48,14 @@ for (index in 1:length(Cell_type_assigned)){
   marked_cells <- Cell_type_assigned[[index]]
   marked_cells_name <- names(Cell_type_assigned)[index]
   
-  labeling_df<- data.frame(gsva=as.numeric(gsva_result[index,]), 
+  labeling_df<- data.frame(#gsva=as.numeric(gsva_result[index,]), 
                            AUCell=as.numeric(cells_AUC_df[index,]),
                            AUCell_label=ifelse(colnames(seur) %in% marked_cells,'Marked','-'),
                            SCINA= as.numeric(SCINA_res$probabilities[index,]),
                            tSNE_1 = getEmb(seur, 'tsne')[,1],
                            tSNE_2 = getEmb(seur, 'tsne')[,2])
   
-  p_hist_1=ggplot(labeling_df, aes(x=gsva))+geom_histogram(bins=40)+theme_bw()+ggtitle(paste0('GSVA - ', names(Cell_type_assigned)[index]))
+  #p_hist_1=ggplot(labeling_df, aes(x=gsva))+geom_histogram(bins=40)+theme_bw()+ggtitle(paste0('GSVA - ', names(Cell_type_assigned)[index]))
   
   p_hist_2=ggplot(labeling_df, aes(x=AUCell))+geom_histogram(bins=40)+theme_bw()+
     ggtitle(paste0('AUCell - ', names(Cell_type_assigned)[index]))+
@@ -64,20 +64,20 @@ for (index in 1:length(Cell_type_assigned)){
   p_hist_3=ggplot(labeling_df, aes(x=SCINA))+geom_histogram(bins=40)+theme_bw()+ggtitle(paste0('SCINA - ', names(Cell_type_assigned)[index]))
   
   
-  p_cor_1=ggplot(labeling_df, aes(x=gsva, y=AUCell))+geom_point()+theme_bw()+
-    ggtitle(paste0('GSVA - AUCell - ', names(Cell_type_assigned)[index]))+
-    geom_hline(yintercept=getThresholdSelected(cells_assignment)[index], linetype="dashed", color = "red")
-  
-  p_cor_2=ggplot(labeling_df, aes(x=gsva, y=SCINA))+geom_point()+theme_bw()+
-    ggtitle(paste0('GSVA - SCINA - ', names(Cell_type_assigned)[index]))
+  # p_cor_1=ggplot(labeling_df, aes(x=gsva, y=AUCell))+geom_point()+theme_bw()+
+  #   ggtitle(paste0('GSVA - AUCell - ', names(Cell_type_assigned)[index]))+
+  #   geom_hline(yintercept=getThresholdSelected(cells_assignment)[index], linetype="dashed", color = "red")
+  # 
+  # p_cor_2=ggplot(labeling_df, aes(x=gsva, y=SCINA))+geom_point()+theme_bw()+
+  #   ggtitle(paste0('GSVA - SCINA - ', names(Cell_type_assigned)[index]))
   
   p_cor_3=ggplot(labeling_df, aes(x=SCINA, y=AUCell))+geom_point()+theme_bw()+
     ggtitle(paste0('SCINA - AUCell - ', names(Cell_type_assigned)[index]))+
     geom_hline(yintercept=getThresholdSelected(cells_assignment)[index], linetype="dashed", color = "red")
   
   ####### GSVA results
-  p_tsne_1 = ggplot(labeling_df, aes(x=tSNE_1, y=tSNE_2, color=gsva))+geom_point(alpha=0.8)+
-    theme_bw()+ggtitle(paste0(marked_cells_name, ' gsva results'))+scale_color_viridis(direction=-1)
+  # p_tsne_1 = ggplot(labeling_df, aes(x=tSNE_1, y=tSNE_2, color=gsva))+geom_point(alpha=0.8)+
+  #   theme_bw()+ggtitle(paste0(marked_cells_name, ' gsva results'))+scale_color_viridis(direction=-1)
   
   ####### AUCell results, total expression
   p_tsne_2 = ggplot(labeling_df, aes(x=tSNE_1, y=tSNE_2, color=AUCell))+geom_point(alpha=0.8)+
@@ -92,10 +92,9 @@ for (index in 1:length(Cell_type_assigned)){
       theme_bw()+ggtitle(paste0(marked_cells_name, ' SCINA results'))+scale_color_viridis(direction=-1)
     
     
-  gridExtra::grid.arrange(p_hist_1, p_hist_2, p_hist_3,
-                          p_cor_1, p_cor_2, p_cor_3,ncol=3, nrow=2)
+  gridExtra::grid.arrange(p_hist_2, p_hist_3,p_cor_3,ncol=3, nrow=1)
   
-  gridExtra::grid.arrange(p_tsne_1, p_tsne_2, p_tsne_3, p_tsne_4, ncol=2, nrow=2)
+  gridExtra::grid.arrange(p_tsne_2, p_tsne_3, p_tsne_4, ncol=3, nrow=1)
 }
 dev.off()
 
