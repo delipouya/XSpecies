@@ -23,7 +23,7 @@ cells_assignment <- readRDS(file=paste0(AUCell_dir, "cells_assignment_",OUTPUT_N
 Cell_type_assigned <- sapply(1:length(cells_assignment), function(i) cells_assignment[[i]][['assignment']], simplify = F)
 names(Cell_type_assigned) <- names(cells_assignment)
 
-cells_AUC <- readRDS(paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
+cells_AUC <- readRDS(paste0(AUCell_dir, "cells_AUC_",OUTPUT_NAME,".rds"))
 cells_AUC_df = data.frame(getAUC(cells_AUC))
 
 
