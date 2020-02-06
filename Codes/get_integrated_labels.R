@@ -40,7 +40,7 @@ exprMatrix <- as.matrix(seur[['RNA']]@data)
 
 ### Checking how consistent gsva and AUCell results are
 
-pdf(paste0("Results/",INPUT_NAME,'/labeling_',OUTPUT_NAME,'.pdf'), height = 10, width = 15)
+pdf(paste0("Results/",INPUT_NAME,'/labeling_',OUTPUT_NAME,'.pdf'), height = 7, width = 17)
 
 for (index in 1:length(Cell_type_assigned)){ 
   
