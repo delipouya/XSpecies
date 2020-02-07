@@ -13,7 +13,7 @@ Initialize()
 INPUT_NAME = args[1] 
 INPUT_FILE = args[2]
 # INPUT_NAME = 'rat_Rnor'
-# INPUT_FILE = '2.seur_dimRed_rat_Rnor_mito_50_lib_1500.rds'
+# INPUT_FILE = '2.seur_dimRed_rat_Rnor_mito_40_lib_1500.rds'
 PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
 OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
 
@@ -48,7 +48,7 @@ geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets), " (", nGen
 
 
 ## build gene expression ranking for each cell
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=4, plotStats=TRUE)
+cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=8, plotStats=TRUE)
 saveRDS(cells_rankings, paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
 
 # Calculate enrichment for the gene signatures (AUC)
