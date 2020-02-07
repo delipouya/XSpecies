@@ -48,7 +48,11 @@ geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets), " (", nGen
 
 
 ## build gene expression ranking for each cell
+<<<<<<< HEAD
 cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=8, plotStats=TRUE)
+=======
+cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=detectCores()-1, plotStats=TRUE)
+>>>>>>> 29f46cce69d1d69dafc3019fdf20b63c70bbfc15
 saveRDS(cells_rankings, paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
 
 # Calculate enrichment for the gene signatures (AUC)
