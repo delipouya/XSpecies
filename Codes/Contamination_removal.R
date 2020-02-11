@@ -23,6 +23,11 @@ tsne_df$clusters <- seur$seurat_clusters
 ggplot(tsne_df, aes(x=tSNE_1, y=tSNE_2, color=clusters))+geom_point()+theme_bw()
 
 
+### Imporing the unfilted input data for SoupX analysis
+dataDirs = c("~/Desktop/SoupX_rat_DA/")
+sc = load10X(dataDirs, keepDroplets = TRUE, cellIDs = rownames(tsne_df))
+sc = estimateSoup(sc)
+
 
 ### Known liver markes:
 candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_table.rds'))
@@ -67,11 +72,6 @@ b_cell_genes <- candidateGenes_mapped_symbols$B_CELLS
 tryptase_genes <- rownames(sc$toc)[grep(c('Tpsb'), rownames(sc$toc))]
 
 
-
-### Imporing the unfilted input data for SoupX analysis
-dataDirs = c("~/Desktop/SoupX_rat_DA/")
-sc = load10X(dataDirs, keepDroplets = TRUE, cellIDs = rownames(tsne_df))
-sc = estimateSoup(sc)
 
 ## saveing the dimension reduction in the meta data
 sc = setDR(sc, tsne_df)
