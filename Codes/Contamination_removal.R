@@ -1,3 +1,4 @@
+
 source('Codes/Functions.R')
 source('Codes/convert_human_to_ortholog_functions.R')
 Initialize()
@@ -14,7 +15,7 @@ PC_NUMBER = 18
 seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
 seur <- FindNeighbors(seur, dims = 1:PC_NUMBER)
 seur <- FindClusters(seur, resolution = 0.5)
-seur$seurat_clusters <- paste0('cluster_', seur$seurat_clusters)
+#seur$seurat_clusters <- paste0('cluster_', seur$seurat_clusters)
 table(seur$seurat_clusters)
 
 ## Importing dimension reducted data
@@ -79,8 +80,6 @@ sc = setClusters(sc, tsne_df$clusters)
 head(sc$metaData)
 
 
-# visualise the ratio of observed counts for a gene (or set of genes) to this expectation value
-plotMarkerMap(sc,geneSet = genesToEstimateContamination,tsne_df)+theme_bw()
 ## Picking soup specific genes
 head(sc$soupProfile[order(sc$soupProfile$est, decreasing = TRUE), ], n = 20)
 ## I DONT GET THIS PLOT 
@@ -116,11 +115,11 @@ lapply(NonExpressedGeneList, class)
 sc = calculateContaminationFraction(sc, 
                                     nonExpressedGeneList = NonExpressedGeneList, 
                                     useToEst = useToEst)
-
+roundToInt=TRUE
 
 ## Correcting expression profile
 out = adjustCounts(sc,clusters = setNames(tsne_df$clusters, rownames(tsne_df)), nCores=detectCores()-2)
-saveRDS(paste0('Results/rat_DA/Xsoup_',OUTPUT_NAME,'.rds'))
+saveRDS(out, paste0('Results/rat_DA/Xsoup_',OUTPUT_NAME,'.rds'))
 
 
 
@@ -131,8 +130,9 @@ mostZeroed = tail(sort((cntSoggy - cntStrained)/cntSoggy), n = 10)
 mostZeroed
 
 tail(sort(rowSums(sc$toc > out)/rowSums(sc$toc > 0)), n = 20)
-plotChangeMap(sc, out, "Hba")
+plotChangeMap(sc, out, "Mt-nd1")
 
+DropletUtils:::write10xCounts(paste0('Results/rat_DA/Xsoup_refined_',OUTPUT_NAME),out)
 
 
 
