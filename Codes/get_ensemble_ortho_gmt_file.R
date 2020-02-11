@@ -13,7 +13,7 @@ INPUT_NAME = 'rat_Rnor'
 #### generating the gmt file for ensemble id of liver cell markers
 ### this desction needs to be run once 
 
-source('Codes/Convert_Human2ModelAnimal.R')
+source('Codes/convert_human_to_ortholog_functions.R')
 
 files <- list.files(PATH_TO_FILES, include.dirs = T, full.names = T, pattern = '*.tsv')
 liver_files <- lapply(files, function(x) read.delim(x))
