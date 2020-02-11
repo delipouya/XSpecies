@@ -120,7 +120,7 @@ sc = calculateContaminationFraction(sc,
 
 ## Correcting expression profile
 out = adjustCounts(sc,clusters = setNames(tsne_df$clusters, rownames(tsne_df)), nCores=detectCores()-2)
-
+saveRDS(paste0('Results/rat_DA/Xsoup_',OUTPUT_NAME,'.rds'))
 
 
 
