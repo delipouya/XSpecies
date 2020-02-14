@@ -34,8 +34,11 @@ seur <- CreateSeuratObject(counts=Read10X(input_from_10x, gene.column = 1),
 dim(seur)
 seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
 seur[['RNA']] <- AddMetaData(seur[['RNA']], seur_genes_df$V2, col.name = 'symbol')
+# mito_genes_index <- grep(pattern = '^MT-', seur[['RNA']]@meta.features$symbol )
 
-mito_genes_index <- grep(pattern = '^Mt-', seur[['RNA']]@meta.features$symbol )
+pig_mit_genes_ensembl <- readRDS('Data/pig_mit_genes_ensembl.rds')
+mito_genes_index <- which(rownames(seur) %in% pig_mit_genes_ensembl)
+seur[['RNA']]@meta.features$symbol[mito_genes_index]
 seur[["mito_perc"]] <- PercentageFeatureSet(seur, features = mito_genes_index)
 
 ## adding ensemble id as a meta data to the object
