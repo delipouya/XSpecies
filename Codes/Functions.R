@@ -20,12 +20,13 @@ Initialize <- function(){
   
   options(stringsAsFactors = FALSE)
   listOfPackages <- c('BiocManager', 'Seurat', 'viridis', 'org.Rn.eg.db', 'stringr', 'ReactomePA',  'biomaRt', 
-                      'pathfindR', 'ggplot2', 'presto', 'scClustViz', 'org.Hs.eg.db', 'AnnotationDbi', 
+                      'ggplot2', 'scClustViz', 'org.Hs.eg.db', 'AnnotationDbi', 
                       'scran', 'Matrix', 'devtools', 'AUCell', 'GSEABase','GSVA', 'fgsea','limma', 'SCINA',
-                      'DelayedArray', 'DelayedMatrixStats','garnett','monocle', 'SoupX', 'multtest', 'celda')
+                      'DelayedArray', 'DelayedMatrixStats','monocle', 'multtest', 'celda')
   ipak(listOfPackages)
 }
 
+# 'SoupX' , 'presto' , 'pathfindR'
 
 
 colorPalatte <- c(

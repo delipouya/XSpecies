@@ -8,7 +8,7 @@ print(args)
 INPUT_NAME = args[1] 
 MIT_CUT_OFF = as.numeric(args[2])
 LIB_SIZE_CUT_OFF = as.numeric(args[3])
-PC_NUMBER = 18
+PC_NUMBER = 17
 MADS_CUT_OFF = 12
 
 
@@ -34,10 +34,10 @@ seur <- CreateSeuratObject(counts=Read10X(input_from_10x, gene.column = 1),
 dim(seur)
 seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
 seur[['RNA']] <- AddMetaData(seur[['RNA']], seur_genes_df$V2, col.name = 'symbol')
-# mito_genes_index <- grep(pattern = '^MT-', seur[['RNA']]@meta.features$symbol )
+mito_genes_index <- grep(pattern = '^mt-', seur[['RNA']]@meta.features$symbol )
 
-pig_mit_genes_ensembl <- readRDS('Data/pig_mit_genes_ensembl.rds')
-mito_genes_index <- which(rownames(seur) %in% pig_mit_genes_ensembl)
+# pig_mit_genes_ensembl <- readRDS('Data/pig_mit_genes_ensembl.rds')
+# mito_genes_index <- which(rownames(seur) %in% pig_mit_genes_ensembl)
 seur[['RNA']]@meta.features$symbol[mito_genes_index]
 seur[["mito_perc"]] <- PercentageFeatureSet(seur, features = mito_genes_index)
 
@@ -108,7 +108,6 @@ ggplot(df_filt, aes(x=library_size, y=mito_perc, color=library_size))+geom_point
 ## Normalization
 ### SCTransform
 
-
 seur <- NormalizeData(seur, normalization.method = "LogNormalize", scale.factor = 10000)
 dim(seur[['RNA']]@data)
 
@@ -122,7 +121,7 @@ seur <- ScaleData(seur, features = rownames(seur))
 ## alternative: 
 # seur <- SCTransform(seur,conserve.memory=F,verbose=T,return.only.var.genes=F,variable.features.n = nrow(seur[['RNA']]))
 dim(seur)
-saveRDS(seur, paste0('objects/',INPUT_NAME,'/',OBJ_NAME_NORM))
+# saveRDS(seur, paste0('objects/',INPUT_NAME,'/',OBJ_NAME_NORM))
 
 ##  PCA
 seur <- RunPCA(seur,verbose=F)
