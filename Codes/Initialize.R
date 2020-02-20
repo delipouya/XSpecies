@@ -18,7 +18,7 @@ Initialize()
 ## Define cut-ff values
 # MIT_CUT_OFF = 50 
 # LIB_SIZE_CUT_OFF = 1500
-# INPUT_NAME = 'rat_Rnor'
+# INPUT_NAME = 'mouse'
 
 # MIT_CUT_OFF = median(seur$mito_perc) + mad(seur$mito_perc) * MADS_CUT_OFF
 TITLE = paste0('mito threshold: ', MIT_CUT_OFF,' , library size threshold: ', LIB_SIZE_CUT_OFF)
