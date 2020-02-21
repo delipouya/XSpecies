@@ -12,7 +12,7 @@ Initialize()
 INPUT_NAME = args[1] 
 INPUT_FILE = args[2]
 # INPUT_NAME = 'mouse'
-# INPUT_FILE = '2.seur_dimRed_mouse_mito_40_lib_1500.rds'
+# INPUT_FILE = '2.seur_dimRed_mouse_mito_50_lib_1500.rds'
 PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
 OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
 

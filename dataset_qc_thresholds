@@ -2,3 +2,4 @@ rat Rnor, mitochondrial threshold=50, library size threshold=1500
 rat DA, mitochondrial threshold= 30, library size=1500 
 rat Lew_01, mitochondrial threshold= 40, library size threshold= 2000
 rat Lew_02,  mitochondrial threshold= 40, library size threshold = 2000
+mouse, mitochondrial threshold=50,  library size threshold = 2000

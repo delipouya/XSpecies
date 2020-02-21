@@ -8,7 +8,7 @@ print(args)
 INPUT_NAME = args[1] 
 MIT_CUT_OFF = as.numeric(args[2])
 LIB_SIZE_CUT_OFF = as.numeric(args[3])
-PC_NUMBER = 17
+PC_NUMBER = 18
 MADS_CUT_OFF = 12
 
 
@@ -34,7 +34,10 @@ seur <- CreateSeuratObject(counts=Read10X(input_from_10x, gene.column = 1),
 dim(seur)
 seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
 seur[['RNA']] <- AddMetaData(seur[['RNA']], seur_genes_df$V2, col.name = 'symbol')
-mito_genes_index <- grep(pattern = '^mt-', seur[['RNA']]@meta.features$symbol )
+
+MIT_PATTERN = '^Mt-'
+if(INPUT_NAME == 'mouse') {MIT_PATTERN = '^mt-'} 
+mito_genes_index <- grep(pattern = MIT_PATTERN, seur[['RNA']]@meta.features$symbol )
 
 # pig_mit_genes_ensembl <- readRDS('Data/pig_mit_genes_ensembl.rds')
 # mito_genes_index <- which(rownames(seur) %in% pig_mit_genes_ensembl)
@@ -108,18 +111,16 @@ ggplot(df_filt, aes(x=library_size, y=mito_perc, color=library_size))+geom_point
 ## Normalization
 ### SCTransform
 
-seur <- NormalizeData(seur, normalization.method = "LogNormalize", scale.factor = 10000)
-dim(seur[['RNA']]@data)
-
-## Finding variable genes
-seur <- FindVariableFeatures(seur, selection.method = "vst", nfeatures = 2000)
-head(seur[['RNA']]@var.features)
-
-## scaling data
-seur <- ScaleData(seur, features = rownames(seur))
+# seur <- NormalizeData(seur, normalization.method = "LogNormalize", scale.factor = 10000)
+# dim(seur[['RNA']]@data)
+# ## Finding variable genes
+# seur <- FindVariableFeatures(seur, selection.method = "vst", nfeatures = 2000)
+# head(seur[['RNA']]@var.features)
+# ## scaling data
+# seur <- ScaleData(seur, features = rownames(seur))
 
 ## alternative: 
-# seur <- SCTransform(seur,conserve.memory=F,verbose=T,return.only.var.genes=F,variable.features.n = nrow(seur[['RNA']]))
+seur <- SCTransform(seur,conserve.memory=F,verbose=T,return.only.var.genes=F,variable.features.n = nrow(seur[['RNA']]))
 dim(seur)
 # saveRDS(seur, paste0('objects/',INPUT_NAME,'/',OBJ_NAME_NORM))
 
