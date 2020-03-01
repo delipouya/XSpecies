@@ -12,8 +12,8 @@ INPUT_NAME = args[1]
 MIT_CUT_OFF = args[2]  
 LIB_SIZE_CUT_OFF = args[3] 
 
-INPUT_FILE = paste0('clusters_', INPUT_NAME, '_mito_', MIT_CUT_OFF , '_lib_', LIB_SIZE_CUT_OFF,'.RData')
-OUTPUT_FILE = paste0('clusters_', INPUT_NAME, '_mito_', MIT_CUT_OFF , '_lib_', LIB_SIZE_CUT_OFF,'.pdf')
+INPUT_FILE = paste0('clusters_', INPUT_NAME, '_mito_', MIT_CUT_OFF , '_lib_', LIB_SIZE_CUT_OFF,'_v2.RData')
+OUTPUT_FILE = paste0('clusters_', INPUT_NAME, '_mito_', MIT_CUT_OFF , '_lib_', LIB_SIZE_CUT_OFF,'_v2.pdf')
 load(paste0('Results/', INPUT_NAME, '/clusters/', INPUT_FILE))
 
 
@@ -26,8 +26,10 @@ for( i in 1:length(sCVdata_list)){
   
   tsne_df <- data.frame(getEmb(seur, 'tsne'), clusters=as.character(seur[[a_resolution]][,1]))
   umap_df <- data.frame(getEmb(seur, 'umap'), clusters=as.character(seur[[a_resolution]][,1]))
-  tsne_plot = ggplot(tsne_df, aes(x=tSNE_1, y=tSNE_2, color=clusters))+geom_point()+theme_bw()+ggtitle(paste0('tsne ', title))
-  umap_plot = ggplot(umap_df, aes(x=UMAP_1, y=UMAP_2, color=clusters))+geom_point()+theme_bw()+ggtitle(paste0('umap ', title))
+  tsne_plot = ggplot(tsne_df, aes(x=tSNE_1, y=tSNE_2, color=clusters))+
+    geom_point()+theme_bw()+ggtitle(paste0('tsne ', title))
+  umap_plot = ggplot(umap_df, aes(x=UMAP_1, y=UMAP_2, color=clusters))+
+    geom_point()+theme_bw()+ggtitle(paste0('umap ', title))
   plot(tsne_plot)
   plot(umap_plot)
 }

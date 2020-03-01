@@ -20,9 +20,13 @@ candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_
 candidateGenes_mapped <- lapply(candidateGenes_mapped_df, 
                                 function(x) getUnemptyList(x$rnorvegicus_homolog_ensembl_gene))
 
-seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
-exprMatrix <- as.matrix(seur[['RNA']]@data)
+#seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
+load('Results/rat_Rnor/clusters/clusters_rat_Rnor_mito_50_lib_1500_v2.RData')
 
+#exprMatrix <- as.matrix(seur[['RNA']]@data)
+exprMatrix <- as.matrix(GetAssayData(seur, assay.type = "SCT", slot = "data"))
+colnames(exprMatrix) <- paste0('cluster_', as.character(seur$SCT_snn_res.1))
+rownames(exprMatrix)
 
 #### CHECK THE METHOD AND PARAMETERS OF EACH !!!!
 
@@ -32,8 +36,12 @@ getHead(gsva_result)
 saveRDS(gsva_result, paste0('Results/',INPUT_NAME,'/GSVA/GSVA_',OUTPUT_NAME,'.rds'))
 
 
-### Gene set enrichment analysis
-# fgseaRes <- fgseaLabel(candidateGenes_mapped, exprMatrix, as.numeric(as.factor(colnames(exprMatrix))), nperm = 1000)
+
+
+
+
+
+
 
 
 

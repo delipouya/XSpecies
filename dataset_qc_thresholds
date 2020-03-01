@@ -6,10 +6,17 @@ mouse, mitochondrial threshold=50,  library size threshold = 2000
 
 
 Resolutions
-## minimum number of DE genes between clusters: 
 
-mouse: 0.2, next: 0.4 ,0.6, 0.8
-rat DA, 0.2, 0.4 next: 0.6, 0.8
-rat Lew_01, 0.2, next: 0.4 ,0.6, 0.8
-rat Lew_02, 0.2, 0.4 next: 0.6, 0.8
-rat Rnor, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0
+## minimum number of DE genes between clusters: 10
+mouse: 0.2
+rat DA: 0.2, 0.4 
+rat Lew_01: 0.2
+rat Lew_02: 0.2, 0.4 
+rat Rnor: 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0
+
+
+## minimum number of DE genes between clusters: 5
+mouse: 1.0
+rat DA: 0.6
+rat Lew_01: 1.0
+rat Lew_02: 1.0

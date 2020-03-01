@@ -19,12 +19,12 @@ OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
 
 seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
 PC_NUMBER = 18
-max_seurat_resolution <- 1.8 ## change this to higher values
+max_seurat_resolution <- 2.4 ## change this to higher values
 
-output_filename <- paste0('Results/',INPUT_NAME,'/clusters/clusters_',OUTPUT_NAME,'.RData')
+output_filename <- paste0('Results/',INPUT_NAME,'/clusters/clusters_',OUTPUT_NAME,'_v2.RData')
 FDRthresh <- 0.01 # FDR threshold for statistical tests
-min_num_DE <- 10
-seurat_resolution <- 0 # Starting resolution is this plus the jump value below.
+min_num_DE <- 5
+seurat_resolution <- 0.4 # Starting resolution is this plus the jump value below.
 seurat_resolution_jump <- 0.2
 
 seur <- FindNeighbors(seur,reduction="pca",dims=1:PC_NUMBER,verbose=F)

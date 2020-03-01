@@ -13,10 +13,15 @@ Initialize()
 INPUT_NAME = args[1] 
 INPUT_FILE = args[2]
 # INPUT_NAME = 'rat_Rnor'
-# INPUT_FILE = '2.seur_dimRed_rat_Rnor_mito_40_lib_1500.rds'
-PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
-OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
+ 
+Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
+INPUT_FILES = list.files(path = Rdata_PATH , pattern = '.RData', full.names = T, include.dirs = T)
+input_version = 1
+INPUT_FILE = INPUT_FILES[input_version]
 
+PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
+OUTPUT_NAME = gsub('.RData','',gsub(paste0(Rdata_PATH, '/clusters_'),'',INPUT_FILE ))
+load(INPUT_FILE)
 
 ## --------------------------------
 ##### Check if all the known markers are in the raw dataset
@@ -32,8 +37,8 @@ lapply(candidateGenes_mapped, function(x) x[!(x %in% ensemble_genes$V1)])
 AUCell_dir = paste0("Results/",INPUT_NAME,"/AUCell/")
 
 
-seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
-exprMatrix <- as.matrix(seur[['RNA']]@data)
+# seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
+exprMatrix <- as.matrix(GetAssayData(seur))
 
 gmtFile <- paste0(PATH_TO_FILES,"liver_cell_type_signature_gene_sets_ensemble.gmt")
 geneSets <- getGmt(gmtFile)
@@ -48,11 +53,7 @@ geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets), " (", nGen
 
 
 ## build gene expression ranking for each cell
-<<<<<<< HEAD
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=8, plotStats=TRUE)
-=======
-cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=detectCores()-1, plotStats=TRUE)
->>>>>>> 29f46cce69d1d69dafc3019fdf20b63c70bbfc15
+cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=detectCores()-2, plotStats=TRUE)
 saveRDS(cells_rankings, paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
 
 # Calculate enrichment for the gene signatures (AUC)
