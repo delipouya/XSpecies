@@ -6,12 +6,10 @@ args <- commandArgs(trailingOnly = TRUE)
 print(args)
 
 
-
 source('Codes/Functions.R')
 Initialize()
 
 INPUT_NAME = args[1] 
-INPUT_FILE = args[2]
 # INPUT_NAME = 'rat_Rnor'
  
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
@@ -54,8 +52,6 @@ geneSets <- setGeneSetNames(geneSets, newNames=paste(names(geneSets), " (", nGen
 
 ## build gene expression ranking for each cell
 cells_rankings <- AUCell_buildRankings(exprMatrix, nCores=detectCores()-2, plotStats=TRUE)
-saveRDS(cells_rankings, paste0(AUCell_dir,"cells_rankings_",OUTPUT_NAME,".rds" ))
-
 # Calculate enrichment for the gene signatures (AUC)
 cells_AUC <- AUCell_calcAUC(geneSets, cells_rankings) # the top 4 percent are being considered: can change with: aucMaxRank
 saveRDS(cells_AUC, file=paste0(AUCell_dir, "cells_AUC_",OUTPUT_NAME,".rds"))
