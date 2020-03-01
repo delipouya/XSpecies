@@ -11,6 +11,9 @@ Initialize()
 
 INPUT_NAME = args[1] 
 # INPUT_NAME = 'rat_Rnor'
+model_animal_name = args[2]
+# model_animal_name = 'mmusculus'
+
  
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
 INPUT_FILES = list.files(path = Rdata_PATH , pattern = '.RData', full.names = T, include.dirs = T)
@@ -24,8 +27,8 @@ load(INPUT_FILE)
 
 ## --------------------------------
 ##### Check if all the known markers are in the raw dataset
-candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_table.rds'))
-candidateGenes_mapped <- lapply(candidateGenes_mapped_df, function(x) getUnemptyList(x$rnorvegicus_homolog_ensembl_gene))
+candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_table_', model_animal_name, '.rds'))
+candidateGenes_mapped <- lapply(candidateGenes_mapped_df, function(x) getUnemptyList(x[[paste0(model_animal_name, '_homolog_ensembl_gene')]]))
 
 ensemble_genes <- read.delim(paste0('~/XSpecies/Data/',INPUT_NAME,'/genes.tsv'), header = F)
 lapply(candidateGenes_mapped, function(x) sum(x %in% ensemble_genes$V1/length(x)))
@@ -39,7 +42,7 @@ AUCell_dir = paste0("Results/",INPUT_NAME,"/AUCell/")
 # seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
 exprMatrix <- as.matrix(GetAssayData(seur))
 
-gmtFile <- paste0(PATH_TO_FILES,"liver_cell_type_signature_gene_sets_ensemble.gmt")
+gmtFile <- paste0(PATH_TO_FILES,"liver_cell_type_signature_gene_sets_ensemble_", model_animal_name , ".gmt")
 geneSets <- getGmt(gmtFile)
 
 all_markers <- as.character(unlist(candidateGenes_mapped))

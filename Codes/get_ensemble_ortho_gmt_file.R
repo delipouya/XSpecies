@@ -5,8 +5,7 @@
 source('Codes/Functions.R')
 Initialize()
 PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
-INPUT_NAME = 'rat_Rnor'
-
+model_animal_name = 'mmusculus' # 'rnorvegicus' mmusculus
 
 ## > DO NOT RUN THIS AGAIN
 ## --------------------------------
@@ -33,14 +32,15 @@ names(liver_marker_gene_set) <- rownames(liver_marker_gene_set_df)
 candidateGenes <- getUnemptyList(as.character(unlist(liver_marker_gene_set)))
 candidateGenes_mapped_df <- lapply(liver_marker_gene_set, 
                                    function(candidateGenes) 
-                                     .getMapped_hs2model_df(wanted_attributes, ensembl, candidateGenes))
+                                     .getMapped_hs2model_df(wanted_attributes, ensembl, candidateGenes, model_animal_name))
 
-saveRDS(candidateGenes_mapped_df, paste0(PATH_TO_FILES,'candidateGenes_mapped_table.rds'))
-candidateGenes_mapped <- lapply(candidateGenes_mapped_df, function(x) getUnemptyList(x$rnorvegicus_homolog_ensembl_gene))
+saveRDS(candidateGenes_mapped_df, paste0(PATH_TO_FILES,'candidateGenes_mapped_table_', model_animal_name, '.rds'))
+candidateGenes_mapped <- lapply(candidateGenes_mapped_df, function(x) getUnemptyList(x[[paste0(model_animal_name, '_homolog_ensembl_gene')]]))
 
 
 
-sink(paste0(PATH_TO_FILES,"liver_cell_type_signature_gene_sets_ensemble.gmt"))
+
+sink(paste0(PATH_TO_FILES,"liver_cell_type_signature_gene_sets_ensemble_", model_animal_name , ".gmt"))
 for(i in 1:length(candidateGenes_mapped)){
   marker <- candidateGenes_mapped[[i]]
   cell_type_name <- names(candidateGenes_mapped)[i]

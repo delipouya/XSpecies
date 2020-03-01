@@ -14,6 +14,8 @@ Initialize()
 
 INPUT_NAME = args[1] 
 # INPUT_NAME = 'rat_Rnor'
+model_animal_name = args[2]
+# model_animal_name = 'mmusculus'
 
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
 INPUT_FILES = list.files(path = Rdata_PATH , pattern = '.RData', full.names = T, include.dirs = T)
@@ -39,11 +41,11 @@ cells_AUC_df = data.frame(getAUC(cells_AUC))
 
 
 ### importing expression matrix and list of markers
-candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_table.rds'))
+candidateGenes_mapped_df <- readRDS(paste0(PATH_TO_FILES,'candidateGenes_mapped_table_', model_animal_name, '.rds'))
 candidateGenes_mapped <- lapply(candidateGenes_mapped_df, 
-                                function(x) getUnemptyList(x$rnorvegicus_homolog_ensembl_gene))
-
+                                function(x) getUnemptyList(x[[paste0(model_animal_name, '_homolog_ensembl_gene')]]))
 exprMatrix <- as.matrix(GetAssayData(seur))
+
 
 
 
