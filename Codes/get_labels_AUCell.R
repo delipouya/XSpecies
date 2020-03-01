@@ -19,6 +19,7 @@ INPUT_FILE = INPUT_FILES[input_version]
 
 PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
 OUTPUT_NAME = gsub('.RData','',gsub(paste0(Rdata_PATH, '/clusters_'),'',INPUT_FILE ))
+OUTPUT_NAME = gsub('_v2', '', OUTPUT_NAME)
 load(INPUT_FILE)
 
 ## --------------------------------

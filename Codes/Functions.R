@@ -83,6 +83,22 @@ getPcaDF <- function(seur){
 }
 
 
+get_vector_of_lables <- function(Cell_type_assigned, seur){
+  ifelse(colnames(seur) %in% Cell_type_assigned$STELLATE, 'STELLATE',
+         ifelse(colnames(seur) %in% Cell_type_assigned$B_CELLS, 'B_CELLS', 
+                ifelse(colnames(seur) %in% Cell_type_assigned$M1_KC, 'M1_KC', 
+                       ifelse(colnames(seur) %in% Cell_type_assigned$M2_KC, 'M2_KC', 
+                              ifelse(colnames(seur) %in% Cell_type_assigned$CYTOTOXIC_CELLS, 'CYTOTOXIC_CELLS', 
+                                     ifelse(colnames(seur) %in% Cell_type_assigned$HEMATOPOIETIC, 'HEMATOPOIETIC', 
+                                            ifelse(colnames(seur) %in% Cell_type_assigned$T_CELLS, 'T_CELLS',
+                                                   ifelse(colnames(seur) %in% Cell_type_assigned$LSECS, 'LSECS', 
+                                                          ifelse(colnames(seur) %in% Cell_type_assigned$CHOLANGIOCYTES, 'CHOLANGIOCYTES', 
+                                                                 ifelse(colnames(seur) %in% Cell_type_assigned$HEPATOCYTE, 'HEPATOCYTE', 'unknown'
+                                                                 ))))))))))
+  
+}
+
+
 #breaks=c(0,0.5,1),labels=c("Minimum",0.5,"Maximum"),
 # limits=c(0,1)
 
