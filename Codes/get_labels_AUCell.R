@@ -12,7 +12,7 @@ Initialize()
 INPUT_NAME = args[1] 
 # INPUT_NAME = 'rat_Rnor'
 model_animal_name = args[2]
-# model_animal_name = 'mmusculus'
+# model_animal_name = 'rnorvegicus' #'mmusculus'
 
  
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')

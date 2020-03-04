@@ -5,7 +5,7 @@
 source('Codes/Functions.R')
 Initialize()
 PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
-model_animal_name = 'mmusculus' # 'rnorvegicus' mmusculus
+model_animal_name = 'mmusculus' # 'rnorvegicus' 'mmusculus'
 
 ## > DO NOT RUN THIS AGAIN
 ## --------------------------------
