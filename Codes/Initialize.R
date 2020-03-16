@@ -16,9 +16,9 @@ source('Codes/Functions.R')
 Initialize()
 
 ## Define cut-ff values
-# MIT_CUT_OFF = 50 
-# LIB_SIZE_CUT_OFF = 1500
-# INPUT_NAME = 'mouse'
+# MIT_CUT_OFF = 40 
+# LIB_SIZE_CUT_OFF = 2000
+# INPUT_NAME = 'rat_Lew_02'
 
 # MIT_CUT_OFF = median(seur$mito_perc) + mad(seur$mito_perc) * MADS_CUT_OFF
 TITLE = paste0('mito threshold: ', MIT_CUT_OFF,' , library size threshold: ', LIB_SIZE_CUT_OFF)
@@ -43,6 +43,7 @@ mito_genes_index <- grep(pattern = MIT_PATTERN, seur[['RNA']]@meta.features$symb
 # mito_genes_index <- which(rownames(seur) %in% pig_mit_genes_ensembl)
 seur[['RNA']]@meta.features$symbol[mito_genes_index]
 seur[["mito_perc"]] <- PercentageFeatureSet(seur, features = mito_genes_index)
+summary(seur[["mito_perc"]]$mito_perc )
 
 ## adding ensemble id as a meta data to the object
 
@@ -55,11 +56,15 @@ print(paste0('Total number of cells: ', ncol(seur)))
 
 to_drop_mito <- seur$mito_perc > MIT_CUT_OFF
 print(paste0('to_drop_mito: ',sum(to_drop_mito)))
+print(paste0('to_drop_mito percentage: ', round(sum(to_drop_mito)*100/ncol(seur),2) ))
 
 to_drop_lib_size <- seur$nCount_RNA < LIB_SIZE_CUT_OFF
 print(paste0('to_drop_lib_size: ', sum(to_drop_lib_size)))
+print(paste0('to_drop_lib_size percentage: ', round( sum(to_drop_lib_size)*100/ncol(seur),2) ))
 
 print(paste0('remained after both filters: ', sum(!to_drop_lib_size & !to_drop_mito)))
+print(paste0('Percentage of remained after both filters: ', 
+             round(  sum(!to_drop_lib_size & !to_drop_mito)*100/ncol(seur),2) ))
 
 df = data.frame(library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expressed=seur$nFeature_RNA)
 

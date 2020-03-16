@@ -1,10 +1,13 @@
+## Attension:
+## you need to set the animal name here before loading it in another script
+
 source('Codes/Functions.R')
 Initialize()
-# 'rnorvegicus' 
-# model_animal_name = 'mmusculus'
+
+model_animal_name = 'rnorvegicus' # 'mmusculus'
 
 
-.getMapped_hs2model_df <- function(wanted_attributes, ensembl, candidateGenes, model_animal_name){
+.getMapped_hs2model_df <- function(ensembl, candidateGenes, model_animal_name){
   
   wanted_attributes <- c(paste0(model_animal_name, '_homolog_ensembl_gene'), 
                          paste0(model_animal_name, '_homolog_associated_gene_name'), 
@@ -34,7 +37,7 @@ Initialize()
   return(mappedGenesToOrthologs)
 }
 # usage:
-# .getMapped_hs2model_df(wanted_attributes, ensembl, candidateGenes, )
+# .getMapped_hs2model_df(ensembl, candidateGenes, model_animal_name)
 
 
 
