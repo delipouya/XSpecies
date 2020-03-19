@@ -51,10 +51,14 @@ getUnemptyList <- function(chrList){ chrList[!is.na(chrList) & chrList != '' ]}
 
 
 
-Plot.tsne.gene.expr <- function(tsne.gene.df, GENE_NAME){
-  ggplot(tsne.gene.df, aes(x=tSNE_1, y=tSNE_2, color=gene.expr))+
-    geom_point(alpha=0.6)+theme_bw()+ggtitle(GENE_NAME) + 
-    theme(plot.title = element_text(hjust = 0.5))+ xlab('tSNE1')+ylab('tSNE2')+scale_color_viridis(direction = -1,option = "inferno",limits=c(0,3),oob=scales::squish)
+Plot.tsne.gene.expr <- function(tsne.gene.df, title,subtitle){
+  colnames(tsne.gene.df)[3] <- 'expression'
+  ggplot(tsne.gene.df, aes(x=tSNE_1, y=tSNE_2, color=expression))+
+    geom_point(alpha=0.7)+theme_classic()+ggtitle(title,subtitle = subtitle) + 
+    theme(plot.title = element_text(hjust = 0.5, size=12, face = "bold"), 
+          plot.subtitle = element_text(hjust = 0.5, color = "blue"))+ 
+    xlab('tSNE1')+ylab('tSNE2')+
+    scale_color_viridis(direction = -1,option = "plasma") #limits=c(0,3),oob=scales::squish
 }
 
 

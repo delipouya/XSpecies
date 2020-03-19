@@ -1,4 +1,4 @@
-
+#### in this script we'll find the pig's mitochondrial gene 
 
 library(rtracklayer)
 Sus_scrofa.Sscrofa11 <- rtracklayer::import('~/sus_scrofa/Sus_scrofa.Sscrofa11.1.99.gtf')

@@ -5,9 +5,9 @@ print(args)
 source('Codes/Functions.R')
 Initialize()
 INPUT_NAME = args[1] 
-# INPUT_NAME = 'mouse'  #'rat_Rnor' 
+# INPUT_NAME = 'rat_Rnor' #'mouse'
 model_animal_name = args[2]
-# model_animal_name = 'mmusculus'   #"rnorvegicus"
+# model_animal_name = "rnorvegicus" #'mmusculus' 
 
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
 INPUT_FILES = list.files(path = Rdata_PATH , pattern = '.RData', full.names = T, include.dirs = T)
@@ -20,9 +20,11 @@ OUTPUT_NAME = gsub('_v2', '', OUTPUT_NAME)
 input_from_10x <- paste0("Data/", INPUT_NAME,'/')
 seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
 
-
 load(INPUT_FILE)
-cluster_names <- levels(seur)
+
+
+if(INPUT_NAME=='rat_Rnor') Idents(seur) <- as.character(seur$SCT_snn_res.1)
+cluster_names <-  levels(seur)
 Cluster_markers <- sapply(1:length(cluster_names), 
                           function(i) FindMarkers(seur, ident.1=cluster_names[i], ident.2 = NULL), 
                           simplify = FALSE)
@@ -41,7 +43,28 @@ Cluster_markers_merged <- sapply(1:length(Cluster_markers),
 
 names(Cluster_markers_merged) <- paste0('cluster_', cluster_names)
 lapply(Cluster_markers_merged, head)
-saveRDS(Cluster_markers_merged, paste0('Results/', INPUT_NAME, '/markers/markers_', OUTPUT_NAME, '.rds'))
+
+
+### Run this section in order to get the markers in a csv format
+RES= ''
+if(INPUT_NAME=='rat_Rnor') RES = '_res.1'
+# saveRDS(Cluster_markers_merged, 
+#          paste0('Results/', INPUT_NAME, '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
+length(Cluster_markers_merged)
+Cluster_markers_merged <- readRDS(paste0('Results/', INPUT_NAME,
+                                              '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
+
+
+
+markers_dir = paste0('Results/', INPUT_NAME, '/markers/markers_',OUTPUT_NAME, RES)
+
+dir.create(markers_dir)
+for(i in 1:length(Cluster_markers_merged)){
+  print(names(Cluster_markers_merged)[i])
+  write.csv(Cluster_markers_merged[[i]], 
+            paste0(markers_dir,'/',INPUT_NAME,'_', names(Cluster_markers_merged)[i],'.csv'), 
+            row.names = T, quote = F)
+}
 
 
 
