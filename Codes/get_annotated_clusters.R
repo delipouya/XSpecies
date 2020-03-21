@@ -3,6 +3,7 @@ Initialize()
 
 ############################ 
 ### loading the input data matrix:
+
 INPUT_NAME = 'rat_Rnor'  #'mouse' 
 model_animal_name = "rnorvegicus" #'mmusculus'  
 
@@ -34,7 +35,7 @@ plasma_cells_cl[plasma_cells_cl %in% Total_markers_converted_df[['B_cells']]$sym
 
 
 
-#### making the pdf file for all the kown markers, 
+#### making the pdf file for all the kown markers,
 #### a single pdf file will be made per cell-type
 sample_name = 'DA-02'
 sapply(1:length(Total_markers_converted_df), 
