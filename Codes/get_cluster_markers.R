@@ -23,13 +23,15 @@ seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
 load(INPUT_FILE)
 
 
-if(INPUT_NAME=='rat_Rnor') Idents(seur) <- as.character(seur$SCT_snn_res.1)
+if(INPUT_NAME=='rat_Rnor') Idents(seur) <- paste0('cluster_',as.character(seur$SCT_snn_res.1))
+if(INPUT_NAME=='rat_Lew_01') Idents(seur) <- paste0('cluster_',as.character(seur$SCT_snn_res.0.8))
+
 cluster_names <-  levels(seur)
 Cluster_markers <- sapply(1:length(cluster_names), 
-                          function(i) FindMarkers(seur, ident.1=cluster_names[i], ident.2 = NULL), 
+                          function(i) FindMarkers(seur, ident.1=cluster_names[i]), 
                           simplify = FALSE)
 
-names(Cluster_markers) <- paste0('cluster_', cluster_names)
+names(Cluster_markers) <- cluster_names
 Cluster_markers_merged <- sapply(1:length(Cluster_markers), 
                                  function(i){
                                    markers_df <- Cluster_markers[[i]]
@@ -37,25 +39,32 @@ Cluster_markers_merged <- sapply(1:length(Cluster_markers),
                                    ## merge the ensemble IDs in the dataframe with the HUGO terms 
                                    markers_df_merged <- merge(markers_df, seur_genes_df, 
                                                               by.x='ensemble_ids', 
-                                                              by.y='V1', all.x=T, all.y=F)
+                                                              by.y='V1', all.x=T, all.y=F,sort=F)
                                    return(markers_df_merged)
                                  }, simplify = FALSE)
 
-names(Cluster_markers_merged) <- paste0('cluster_', cluster_names)
-lapply(Cluster_markers_merged, head)
+names(Cluster_markers_merged) <- cluster_names
+
+### checking if the order of DE list has not changed due to merging
+sapply(1:length(Cluster_markers), function(i){
+  sum(Cluster_markers_merged[[i]]$ensemble_ids != rownames(Cluster_markers[[i]])) }, simplify = F)
 
 
+
+# scp delaram@192.168.233.150:~/XSpecies/Results/rat_Rnor/markers/markers_rat_Rnor_mito_50_lib_1500_res.1.rds .
 ### Run this section in order to get the markers in a csv format
 RES= ''
 if(INPUT_NAME=='rat_Rnor') RES = '_res.1'
-# saveRDS(Cluster_markers_merged, 
-#          paste0('Results/', INPUT_NAME, '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
+if(INPUT_NAME=='rat_Lew_01') RES = '_res.0.8'
+
+saveRDS(Cluster_markers_merged, 
+          paste0('Results/', INPUT_NAME, '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
 length(Cluster_markers_merged)
 Cluster_markers_merged <- readRDS(paste0('Results/', INPUT_NAME,
                                               '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
 
 
-
+# scp delaram@192.168.233.150:~/XSpecies/Results/rat_Rnor/markers/markers_rat_Rnor_mito_50_lib_1500_res.1/*.csv .
 markers_dir = paste0('Results/', INPUT_NAME, '/markers/markers_',OUTPUT_NAME, RES)
 
 dir.create(markers_dir)

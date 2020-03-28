@@ -150,7 +150,6 @@ gamma_delta_T_cells_HE <- c('TBX21', 'KLRB1','CD161', 'FCGR3A', 'CD16',
 ### third population >> enriched expression of GNLY, NKG2A, TYMS, and TOP2A >> more complete in the paper
 cytotoxic_cells_cl <-	c('GNLY', 'GZMB', 'PRF1')
 
-
 T_cells_total <- unique(c(T_cells_cl, alpha_beta_T_cells, alpha_beta_T_cells_DE, 
                           gamma_delta_T_cells, gamma_delta_T_cells_DE, gamma_delta_T_cells_HE, cytotoxic_cells_cl))
 
@@ -165,6 +164,12 @@ NK_cells_DE <- c('CD7', 'CMC1', 'XCL2', 'KLRB1', 'XCL1', 'KLRC1', 'KLRF1', 'IL2R
                  'TMIGD2', 'CLIC3', 'GZMK', 'DUSP2', 'MATK', 'IFITM1', 'CCL4', 'CD247')
 
 NK_cell_total <- unique(c(NK_cells, NK_cells_DE, NK_cells_HE))
+
+
+T_cell_marker_list <- list(T_cells_cl, alpha_beta_T_cells, alpha_beta_T_cells_DE, gamma_delta_T_cells, 
+                           gamma_delta_T_cells_DE, gamma_delta_T_cells_HE, NK_cells, NK_cells_HE, NK_cells_DE)
+names(T_cell_marker_list) <- c('T_cells_cl', 'alpha_beta_T_cells', 'alpha_beta_T_cells_DE', 'gamma_delta_T_cells', 
+                               'gamma_delta_T_cells_DE', 'gamma_delta_T_cells_HE', 'NK_cells', 'NK_cells_HE', 'NK_cells_DE')
 
 ##########################################################################  
 ##################################  B cells
@@ -184,7 +189,9 @@ plasma_cells_DE <- c('IGLC2', 'IGHG1', 'IGKC', 'IGHG2', 'IGHG3', 'IGHGP', 'IGLC3
 
 B_cells_total <- c(B_cells_cl, mature_B_cell, mature_B_cell_HE, mature_B_cell_DE, plasma_cells_cl, plasma_cells_DE)
 
-
+B_cell_marker_list <- list(B_cells_cl, mature_B_cell, mature_B_cell_HE, mature_B_cell_DE, plasma_cells_cl, plasma_cells_DE)
+names(B_cell_marker_list) <- c('B_cells_cl', 'mature_B_cell', 'mature_B_cell_HE', 
+                               'mature_B_cell_DE', 'plasma_cells_cl', 'plasma_cells_DE')
 
 
 #### listing all the markers
@@ -204,6 +211,8 @@ source('Codes/Functions.R')
 source('Codes/convert_human_to_ortholog_functions.R')
 Initialize()
 seur_genes_df <- read.delim(paste0(paste0("Data/", INPUT_NAME,'/'),'genes.tsv'), header = F)
+
+
 
 Total_markers_converted_df <- sapply(1:length(Total_markers), 
                                      function(i){

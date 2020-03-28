@@ -48,6 +48,7 @@ colorPalatte <- c(
 getHead <- function(dataframe){print(dataframe[1:5, 1:5])}
 
 getUnemptyList <- function(chrList){ chrList[!is.na(chrList) & chrList != '' ]}
+getUnemptyList_bool <- function(chrList){ !is.na(chrList) & chrList != '' }
 
 
 

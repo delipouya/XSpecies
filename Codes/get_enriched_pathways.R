@@ -16,7 +16,7 @@ Initialize()
 }
 
 #### importing the input data
-INPUT_NAME = 'rat_DA' #'mouse'
+INPUT_NAME = 'rat_Lew_01'  # 'rat_Rnor', 'rat_DA' 'mouse' 
 model_animal_name = "rnorvegicus" #'mmusculus' 
 
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
@@ -28,6 +28,8 @@ OUTPUT_NAME = gsub('_v2', '', OUTPUT_NAME)
 
 RES= ''
 if(INPUT_NAME=='rat_Rnor') RES = '_res.1'
+if(INPUT_NAME=='rat_Lew_01')  RES = '_res.0.8' 
+
 Cluster_markers_merged <- readRDS(paste0('Results/', INPUT_NAME, '/markers/markers_', 
                                               OUTPUT_NAME, RES,'.rds'))
 cluster_names <- names(Cluster_markers_merged)
@@ -65,6 +67,9 @@ geneSymbolsMapped <- lapply(geneSymbolsToMap, function(aGeneSymbolTable){
                             by.x='ensemble_ids', by.y='ensembl_gene_id', all.x=T)
   return(geneSymbolsToMap)})
 
+saveRDS(geneSymbolsMapped, paste0('Results/',INPUT_NAME , 
+                                  '/pathway_analysis/DE_mapped_entrez_',OUTPUT_NAME, RES,'.rds'))
+
 ### >>>>>>>>>>>>>>>>>>>>>>>
 
 geneSymbolsMapped <- readRDS(paste0('Results/',INPUT_NAME , 
@@ -77,6 +82,9 @@ GenesToEnrich <- lapply(geneSymbolsMapped, function(aGeneTable)
 EnrichmentResult <-lapply(GenesToEnrich, 
                           function(aGeneVector){print('done!');
                             enrichPathway(gene=aGeneVector,organism = "rat", pvalueCutoff=0.05, readable=T)})
+
+#saveRDS(EnrichmentResult,  paste0('Results/',INPUT_NAME , 
+#                                    '/pathway_analysis/enrich_results_',OUTPUT_NAME, RES,'.rds'))
 
 EnrichmentResult <- readRDS( paste0('Results/',INPUT_NAME , 
                                     '/pathway_analysis/enrich_results_',OUTPUT_NAME, RES,'.rds'))
@@ -106,7 +114,7 @@ dev.off()
 
 
 
-###### Gene set enrichment analysis
+###### Gene set enrichment analysis >> wasn't useful
 # there were some ties present in the preranked state: 10.02% of the list
 
 Cluster_markers_merged_entrez <- sapply(1:length(Cluster_markers_merged), function(i){

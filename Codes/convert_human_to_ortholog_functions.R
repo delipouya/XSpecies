@@ -57,7 +57,28 @@ listAttributes(ensembl)[grep(listAttributes(ensembl)[,1], pattern = 'symbol'),]
 
 
 
+####  Convert human gene list to ensembl id
+get_human_ensembl_ids <- function(human_gene_symbol_list){
+  listMarts()
+  ensembl <- useMart("ensembl")
+  datasets <- listDatasets(ensembl)
+  ensembl = useDataset('hsapiens_gene_ensembl',
+                       mart=ensembl)
+  general_markers_human_ensembl_df <- getBM(filters="hgnc_symbol", 
+                                            attributes= c('hgnc_symbol',"ensembl_gene_id"),
+                                            values=as.character(human_gene_symbol_list), mart= ensembl)
+  return(general_markers_human_ensembl_df)
+}
 
-
-
+get_rat_ensembl_ids <- function(rat_gene_symbol_list){
+  listMarts()
+  ensembl <- useMart("ensembl")
+  datasets <- listDatasets(ensembl)
+  ensembl = useDataset('rnorvegicus_gene_ensembl',
+                       mart=ensembl)
+  general_markers_rat_ensembl_df <- getBM(filters="rgd_symbol", 
+                                            attributes= c('rgd_symbol',"ensembl_gene_id"),
+                                            values=as.character(rat_gene_symbol_list), mart= ensembl)
+  return(general_markers_rat_ensembl_df)
+}
 
