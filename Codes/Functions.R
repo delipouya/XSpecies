@@ -22,7 +22,7 @@ Initialize <- function(){
   listOfPackages <- c('BiocManager', 'Seurat', 'viridis', 'org.Rn.eg.db', 'stringr', 'ReactomePA',  'biomaRt', 
                       'ggplot2', 'scClustViz', 'org.Hs.eg.db', 'AnnotationDbi', 'presto' ,
                       'scran', 'Matrix', 'devtools', 'AUCell', 'GSEABase','GSVA', 'fgsea','limma', 'SCINA',
-                      'DelayedArray', 'DelayedMatrixStats','monocle', 'multtest', 'celda')
+                      'DelayedArray', 'DelayedMatrixStats','monocle', 'multtest', 'celda', 'gprofiler2')
   ipak(listOfPackages)
 }
 
