@@ -210,6 +210,8 @@ lapply(Total_markers, head)
 source('Codes/Functions.R')
 source('Codes/convert_human_to_ortholog_functions.R')
 Initialize()
+model_animal_name = "rnorvegicus"    # 'mmusculus'
+
 seur_genes_df <- read.delim(paste0(paste0("Data/", INPUT_NAME,'/'),'genes.tsv'), header = F)
 
 
@@ -229,6 +231,5 @@ Total_markers_converted_df <- sapply(1:length(Total_markers),
 names(Total_markers_converted_df) <- Total_markers_names
 lapply(Total_markers_converted_df, head)
 # saveRDS(Total_markers_converted_df, 'Data/Total_markers_converted_df.rds')
-
 
 

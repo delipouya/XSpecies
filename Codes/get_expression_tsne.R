@@ -8,6 +8,7 @@ INPUT_NAME = args[1]
 INPUT_FILE = args[2]
 
 source('Codes/Functions.R')
+source('Codes/convert_human_to_ortholog_functions.R')
 Initialize()
 # rat_Rnor, 2.seur_dimRed_rat_Rnor_mito_50_lib_1500.rds
 # rat_DA, 2.seur_dimRed_rat_DA_mito_30_lib_1500.rds
@@ -97,7 +98,32 @@ for( i in 1:nrow(marker_df)){
 dev.off()
 
   
+# check Tallulah immune cell markers
+immune_markers <- read.csv('Data/McParland_markers/liver_markers_tallulah/liver_immune_markers.csv')
+immune_markers_human <- immune_markers[immune_markers$Species == 'Human',]
+head(immune_markers_human)
 
+mapped_markers_df = .getMapped_hs2model_df( ensembl, immune_markers_human$Gene , model_animal_name)
+mapped_markers_df_2 = mapped_markers_df[mapped_markers_df$rnorvegicus_homolog_ensembl_gene != '' & 
+                                          !is.na(mapped_markers_df$rnorvegicus_homolog_ensembl_gene),]
+
+mapped_markers_df_2 <- merge(mapped_markers_df_2,immune_markers_human ,by.x='symbol', by.y='Gene',sort=F)
+mapped_markers_df_2 = mapped_markers_df_2[mapped_markers_df_2$rnorvegicus_homolog_ensembl_gene %in% rownames(seur),]
+
+pdf(paste0('Results/',INPUT_NAME,'/markers/tallulah_immune_markers_',INPUT_NAME,'.pdf'))
+for(i in 1:nrow(mapped_markers_df_2)){
+  aMarker = mapped_markers_df_2$rnorvegicus_homolog_ensembl_gene[i]
+  print(aMarker)
+  aMarker_expression <- exprMatrix[aMarker,]
+  tsne_df <- as.data.frame(cbind(getEmb(seur, 'tsne'),gene.expr=aMarker_expression))
+  p=Plot.tsne.gene.expr(tsne_df,
+                        paste0('Human: ', mapped_markers_df_2$symbol[i], 
+                               '  rat: ', mapped_markers_df_2$rnorvegicus_homolog_associated_gene_name[i]),
+                        paste0(mapped_markers_df_2$Species[i], ' - ',
+                               immune_markers_human$Celltype[i], ' - ', INPUT_NAME))
+  print(p)
+}
+dev.off()
 
 
 
