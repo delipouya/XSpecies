@@ -1,0 +1,122 @@
+Mouse dataset:
+
+mito threshold: 50 , library size threshold: 2000
+
+Total number of cells: 72999
+summary(libSize)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+    508    1062    1160    1228    1272   11633
+    
+summary(seur[["mito_perc"]]$mito_perc)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.0000  0.5385  0.8929  2.5302  1.5785 71.5317 
+ 
+to_drop_mito: 407
+to_drop_lib_size: 68459
+remained after both filters: 4473
+
+to_drop_mito percentage: 0.56
+to_drop_lib_size percentage: 93.78
+Percentage of remained after both filters: 6.13
+
+#########################
+DA rat- sample 01
+mito threshold: 30 , library size threshold: 1500
+dim:  32883 50803
+
+summary(seur[["mito_perc"]]$mito_perc )
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.6515  3.2666  4.0042  6.2893  5.1261 47.2245 
+ 
+summary(libSize)
+Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 291     974    1056    1134    1185    7240 
+ 
+Total number of cells: 50803"
+to_drop_mito: 551"
+to_drop_mito percentage: 1.08"
+to_drop_lib_size: 45652"
+to_drop_lib_size percentage: 89.86"
+remained after both filters: 5134"
+Percentage of remained after both filters: 10.11
+ 
+ 
+#########################
+DA rat- sample 01 (Rnor)
+
+mito threshold: 50 , library size threshold: 1500
+dim: 32545 10189
+summary(seur[["mito_perc"]]$mito_perc )
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.4517  5.2073  7.6106 15.4341 19.2246 86.5744
+ 
+summary(libSize)
+ Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 1035    1347    1584    2366    2610   15604 
+   
+Total number of cells: 10189
+to_drop_mito: 621
+to_drop_mito percentage: 6.09
+to_drop_lib_size: 4307
+to_drop_lib_size percentage: 42.27
+remained after both filters: 5311
+Percentage of remained after both filters: 52.12
+
+
+#########################
+Lewis rat - sample 01
+
+mito threshold: 40 , library size threshold: 2000
+dim(seur)
+[1] 32883 62362
+
+summary(seur[["mito_perc"]]$mito_perc )
+Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.3509  2.5178  3.4511  5.9147  5.0505 60.5984 
+ 
+summary(libSize)
+ Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  461    1170    1280    1395    1434    9402 
+  
+Total number of cells: 62362
+to_drop_mito: 621
+to_drop_mito percentage: 0.46
+to_drop_lib_size: 56899
+to_drop_lib_size percentage: 91.24
+remained after both filters: 5457
+Percentage of remained after both filters: 8.75
+
+
+#########################
+Lewis rat - sample 02
+
+mito threshold: 40 , library size threshold: 2000
+32883 61898
+summary(seur[["mito_perc"]]$mito_perc )
+Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+0.407   3.000   4.013   5.785   5.594  66.555 
+  
+summary(libSize)
+Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+402    1020    1126    1225    1268   10288 
+
+Total number of cells: 61898
+to_drop_mito: 278
+to_drop_mito percentage: 0.45
+to_drop_lib_size: 58053
+to_drop_lib_size percentage: 93.79
+remained after both filters: 3844
+Percentage of remained after both filters: 6.21
+#########################
+
+
+
+
+
+ 
+
+
+
+
+
+ 

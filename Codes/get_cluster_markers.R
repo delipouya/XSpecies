@@ -5,7 +5,7 @@ print(args)
 source('Codes/Functions.R')
 Initialize()
 INPUT_NAME = args[1] 
-# INPUT_NAME = 'rat_Rnor' #'mouse'
+# INPUT_NAME = 'rat_Lew_01' # 'rat_DA 'mouse'
 model_animal_name = args[2]
 # model_animal_name = "rnorvegicus" #'mmusculus' 
 
@@ -25,6 +25,7 @@ load(INPUT_FILE)
 
 if(INPUT_NAME=='rat_Rnor') Idents(seur) <- paste0('cluster_',as.character(seur$SCT_snn_res.1))
 if(INPUT_NAME=='rat_Lew_01') Idents(seur) <- paste0('cluster_',as.character(seur$SCT_snn_res.0.8))
+if(INPUT_NAME %in% c('rat_DA', 'rat_Lew_02')) Idents(seur) <- paste0('cluster_',Idents(seur))
 
 cluster_names <-  levels(seur)
 Cluster_markers <- sapply(1:length(cluster_names), 
@@ -51,7 +52,7 @@ sapply(1:length(Cluster_markers), function(i){
 
 
 
-# scp delaram@192.168.233.150:~/XSpecies/Results/rat_Rnor/markers/markers_rat_Rnor_mito_50_lib_1500_res.1.rds .
+# scp delaram@192.168.233.150:~/XSpecies/Results/rat_Lew_02/markers/markers_rat_Lew_02_mito_40_lib_2000.rds .
 ### Run this section in order to get the markers in a csv format
 RES= ''
 if(INPUT_NAME=='rat_Rnor') RES = '_res.1'
@@ -64,7 +65,7 @@ Cluster_markers_merged <- readRDS(paste0('Results/', INPUT_NAME,
                                               '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
 
 
-# scp delaram@192.168.233.150:~/XSpecies/Results/rat_Rnor/markers/markers_rat_Rnor_mito_50_lib_1500_res.1/*.csv .
+# scp delaram@192.168.233.150:~/XSpecies/Results/rat_Lew_02/markers/markers_rat_Lew_02_mito_40_lib_2000/*.csv .
 markers_dir = paste0('Results/', INPUT_NAME, '/markers/markers_',OUTPUT_NAME, RES)
 
 dir.create(markers_dir)
@@ -74,4 +75,7 @@ for(i in 1:length(Cluster_markers_merged)){
             paste0(markers_dir,'/',INPUT_NAME,'_', names(Cluster_markers_merged)[i],'.csv'), 
             row.names = T, quote = F)
 }
+
+
+
 

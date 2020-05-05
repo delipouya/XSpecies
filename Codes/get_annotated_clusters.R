@@ -4,7 +4,7 @@ Initialize()
 ############################ 
 ### loading the input data matrix:
 
-INPUT_NAME = 'rat_Rnor'  # 'rat_Lew_01', 'rat_DA' 'mouse' 
+INPUT_NAME = 'rat_Lew_02'  # rat_Rnor 'rat_Lew_01', 'rat_DA' 'mouse' 
 model_animal_name = "rnorvegicus" #'mmusculus'  
 
 Rdata_PATH = paste0('Results/', INPUT_NAME, '/clusters/')
@@ -31,7 +31,7 @@ Total_markers_converted_df <- sapply(1:length(Total_markers_converted_df),
                                      }, simplify = F)
 
 names(Total_markers_converted_df) <- Total_markers_names
-zone3_hepatocytes[zone3_hepatocytes %in% Total_markers_converted_df[['Hepatocytes']]$symbol]
+Hepatocytes_cl[Hepatocytes_cl %in% Total_markers_converted_df[['Hepatocytes']]$symbol]
 
 
 
@@ -43,7 +43,7 @@ zone3_hepatocytes[zone3_hepatocytes %in% Total_markers_converted_df[['Hepatocyte
 #### making the pdf file for all the kown markers,
 #### a single pdf file will be made per cell-type
 dir.create(paste0('Results/',INPUT_NAME,'/markers/cell_type_markers/'))
-sample_name = 'DA-02' #Lew-01
+sample_name = 'Lew-02' #Lew-01
 sapply(1:length(Total_markers_converted_df), 
        function(i){
          cell_type <- gsub(pattern = '_', replacement = ' ', Total_markers_names[i])
@@ -117,9 +117,7 @@ Cluster_markers_merged[[a_cluster]]$V2[1:50]
 
 ### generate a barplot for this
 ### Check what percentage of each of DEs are in cell type markers
-perc_vector <- rep(0, 2*length(Total_markers_converted_df))
-names(perc_vector) <- for(i in 1:length())
-  
+
 for(i in 1:length(Total_markers_converted_df)){
   
   a_cluster_DE_genes <- Cluster_markers_merged[[a_cluster]]$ensemble_ids
@@ -174,15 +172,17 @@ Plot.tsne.gene.expr(tsne_df,
                     title = paste0( model_animal_name,':',aMarker_symbol),
                     subtitle = paste0('Cell type: ',cell_type, '   Sample: ', sample_name))
 
-## markers did not make sense: 
 
 
 
 
-Cluster_markers_merged <- readRDS(paste0('Results/', INPUT_NAME,
-                                         '/markers/markers_', OUTPUT_NAME, RES,'.rds'))
+############################################################## checking the DE markers freq in known markers
+Cluster_markers_merged <- readRDS(paste0('Results/', INPUT_NAME,'/markers/markers_', OUTPUT_NAME, RES,'.rds'))
 
-cluster_to_check = 'cluster_17'
+##############################   figuring out the general populations
+cluster_to_check = 'cluster_14'
+Cluster_markers_merged[[cluster_to_check]]$V2[1:20]
+
 for(i in 1:length(Total_markers_converted_df)){
   print(names(Total_markers_converted_df)[i])
   rat_cell_markers <- Total_markers_converted_df[[i]]$rnorvegicus_homolog_associated_gene_name
@@ -191,20 +191,30 @@ for(i in 1:length(Total_markers_converted_df)){
 }
 
 
-
+##############################   figuring out the sub-populations
+################ immune cells - T, B, NK cells 
 T_cell_marker_list_rat <- lapply(T_cell_marker_list, function(x) 
   Total_markers_converted_df$T_cells$rnorvegicus_homolog_associated_gene_name[Total_markers_converted_df$T_cells$symbol %in% x])
 
 B_cell_marker_list_rat <- lapply(B_cell_marker_list, function(x) 
   Total_markers_converted_df$B_cells$rnorvegicus_homolog_associated_gene_name[Total_markers_converted_df$B_cells$symbol %in% x])
 
-
 for(i in 1:length(T_cell_marker_list_rat)){
   print(names(T_cell_marker_list_rat)[i])
   rat_cell_markers <- T_cell_marker_list_rat[[i]]
-  DE_genes <- Cluster_markers_merged[[cluster_to_check]]$V2[1:30]
+  DE_genes <- Cluster_markers_merged[[cluster_to_check]]$V2[1:20]
   print(DE_genes[DE_genes%in% rat_cell_markers])
 }
+
+for(i in 1:length(B_cell_marker_list_rat)){
+  print(names(B_cell_marker_list_rat)[i])
+  rat_cell_markers <- B_cell_marker_list_rat[[i]]
+  DE_genes <- Cluster_markers_merged[[cluster_to_check]]$V2[1:20]
+  print(DE_genes[DE_genes%in% rat_cell_markers])
+}
+
+
+
 
 
 
