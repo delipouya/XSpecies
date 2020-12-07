@@ -1,33 +1,33 @@
-## Run this script as: 
-# Rscript Codes/clustering.R 'mouse' '2.seur_dimRed_mouse_mito_50_lib_1500.rds'
-
-options(echo=TRUE) # if you want see commands in output file
-args <- commandArgs(trailingOnly = TRUE)
-print(args)
-
 
 source('Codes/Functions.R')
 Initialize()
 
-INPUT_NAME = args[1] 
-INPUT_FILE = args[2]
-# INPUT_NAME = 'mouse'
-# INPUT_FILE = '2.seur_dimRed_mouse_mito_50_lib_1500.rds'
-PATH_TO_FILES = 'Data/McParland_markers/SUPPLEMENTARY_DATA/liver/'
+
+INPUT_NAME =  'rat_DA_M09_WK_008_3pr_v3' # 'rat_LEW_M09_WK_009_3pr_v3' , 'rat_DA_01_reseq'
+INPUT_FILE = '2.seur_dimRed_rat_DA_M09_WK_008_3pr_v3_mito_40_lib_1500.rds'
+# 2.seur_dimRed_rat_LEW_M09_WK_009_3pr_v3_mito_40_lib_1500.rds
+# '2.seur_dimRed_rat_DA_M09_WK_008_3pr_v3_mito_40_lib_1500.rds'
+# 'seur_dimRed_rat_DA_01_reseq_mito_30_lib_1500.rds' 
+# '2.seur_dimRed_rat_DA_01_reseq_mito_30_lib_1500.rds'
+
+
 OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
 
-
 seur <- readRDS(paste0('objects/',INPUT_NAME,'/',INPUT_FILE))
-PC_NUMBER = 18
-max_seurat_resolution <- 2.4 ## change this to higher values
+output_filename <- paste0('Results/',INPUT_NAME,'/clusters/clusters_',OUTPUT_NAME,'.rds')
+seur_output_filename_rds <- paste0('Results/',INPUT_NAME,'/clusters/seur_clustered_',OUTPUT_NAME,'.rds')
+dir.create('Results/rat_LEW_M09_WK_009_3pr_v3/clusters')
 
-output_filename <- paste0('Results/',INPUT_NAME,'/clusters/clusters_',OUTPUT_NAME,'_v2.RData')
+PC_NUMBER = 22
+
+max_seurat_resolution <- 2.0 ## change this to higher values
 FDRthresh <- 0.01 # FDR threshold for statistical tests
-min_num_DE <- 5
-seurat_resolution <- 0.4 # Starting resolution is this plus the jump value below.
-seurat_resolution_jump <- 0.2
+min_num_DE <- 10
+seurat_resolution <- 0 # Starting resolution is this plus the jump value below.
+seurat_resolution_jump <- 0.1
 
 seur <- FindNeighbors(seur,reduction="pca",dims=1:PC_NUMBER,verbose=F)
+#seur <- FindNeighbors(seur,reduction="harmony",dims=1:PC_NUMBER,verbose=F)
 
 sCVdata_list <- list()
 DE_bw_clust <- TRUE
@@ -75,7 +75,7 @@ while(DE_bw_clust) {
     # ^ going to use the corrected counts from SCTransform
     pseudocount=NA,
     DRthresh=0.1,
-    DRforClust="pca",
+    DRforClust="pca", #pca
     calcSil=T,
     calcDEvsRest=T,
     calcDEcombn=T
@@ -93,9 +93,12 @@ while(DE_bw_clust) {
 
 
 # shrinks the size of the Seurat object by removing the scaled matrix
-seur <- DietSeurat(seur,dimreducs=Reductions(seur))
-save(sCVdata_list,seur,file=output_filename)
+#seur <- DietSeurat(seur,dimreducs=Reductions(seur))
+#save(sCVdata_list,seur,file=output_filename)
 
+saveRDS(seur,seur_output_filename_rds)
+saveRDS(sCVdata_list, output_filename)
 
-
+seur = readRDS(seur_output_filename_rds)
+sCVdata_list = readRDS(output_filename)
 

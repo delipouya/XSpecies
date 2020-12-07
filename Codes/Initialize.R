@@ -16,28 +16,41 @@ source('Codes/Functions.R')
 Initialize()
 
 ## Define cut-ff values
-# MIT_CUT_OFF = 40 
-# LIB_SIZE_CUT_OFF = 2000
-# INPUT_NAME = 'rat_Lew_02'
+MIT_CUT_OFF = 50
+LIB_SIZE_CUT_OFF = 1000
+INPUT_NAME = 'rat_DA_M09_WK_008_3pr_v3' #'rat_LEW_M09_WK_009_3pr_v3'
+#'rat_DA_M09_WK_008_3pr_v3'# 'rat_DA_01_reseq' 'rat_DA_M_10WK_003' 'rat_LEW_M09_WK_009_3pr_v3'
 
 # MIT_CUT_OFF = median(seur$mito_perc) + mad(seur$mito_perc) * MADS_CUT_OFF
 TITLE = paste0('mito threshold: ', MIT_CUT_OFF,' , library size threshold: ', LIB_SIZE_CUT_OFF)
 OBJ_NAME_NORM = paste0('1.seur_normed_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.rds')
 OBJ_NAME_DIM_RED = paste0('2.seur_dimRed_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.rds')
 
-## import the data
+OUTPUT_NAME = gsub('.rds','',gsub('2.seur_dimRed_','',INPUT_FILE ))
+
+# ## import the data
 input_from_10x <- paste0("Data/", INPUT_NAME,'/')
+# 
+# ##### alternative input files
+# emptyDrops_output <- readRDS('SoupX/rat_DA_01_emptyDrops_table.rds')
+# seur <- CreateSeuratObject(emptyDrops_output)
+# 
+# SoupX_output <- readRDS('output_soupX_estimatedCont_10Xfilter.rds')
+# seur <- CreateSeuratObject(SoupX_output)
+
+########################
 seur <- CreateSeuratObject(counts=Read10X(input_from_10x, gene.column = 1),
                            min.cells=0,min.features=1, 
                            project = "snRNAseq")
 
 dim(seur)
-seur_genes_df <- read.delim(paste0(input_from_10x,'genes.tsv'), header = F)
+seur_genes_df <- read.delim(paste0(input_from_10x,'features.tsv.gz'), header = F)
 seur[['RNA']] <- AddMetaData(seur[['RNA']], seur_genes_df$V2, col.name = 'symbol')
 
 MIT_PATTERN = '^Mt-'
 if(INPUT_NAME == 'mouse') {MIT_PATTERN = '^mt-'} 
 mito_genes_index <- grep(pattern = MIT_PATTERN, seur[['RNA']]@meta.features$symbol )
+# mito_genes_index <- grep(pattern = MIT_PATTERN, rownames(seur) )
 
 # pig_mit_genes_ensembl <- readRDS('Data/pig_mit_genes_ensembl.rds')
 # mito_genes_index <- which(rownames(seur) %in% pig_mit_genes_ensembl)
@@ -58,7 +71,8 @@ to_drop_mito <- seur$mito_perc > MIT_CUT_OFF
 print(paste0('to_drop_mito: ',sum(to_drop_mito)))
 print(paste0('to_drop_mito percentage: ', round(sum(to_drop_mito)*100/ncol(seur),2) ))
 
-to_drop_lib_size <- seur$nCount_RNA < LIB_SIZE_CUT_OFF
+LIB_SIZE_CUT_OFF_MAX = 75000
+to_drop_lib_size <- seur$nCount_RNA < LIB_SIZE_CUT_OFF | seur$nCount_RNA > LIB_SIZE_CUT_OFF_MAX
 print(paste0('to_drop_lib_size: ', sum(to_drop_lib_size)))
 print(paste0('to_drop_lib_size percentage: ', round( sum(to_drop_lib_size)*100/ncol(seur),2) ))
 
@@ -71,7 +85,8 @@ df = data.frame(library_size= seur$nCount_RNA, mito_perc=seur$mito_perc , n_expr
 
 
 ## Visualization of QC metrics
-pdf(paste0('Results/',INPUT_NAME,'/QC/QC_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.pdf'))
+pdf(paste0('Results/',INPUT_NAME,'/QC/QC_',INPUT_NAME,'_',
+           'mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.pdf'))
 
 ggplot(data.frame(seur$nCount_RNA), aes(seur.nCount_RNA))+
   geom_histogram(bins = 60,color='black',fill='pink',alpha=0.5)+
@@ -125,16 +140,21 @@ ggplot(df_filt, aes(x=library_size, y=mito_perc, color=library_size))+geom_point
 # seur <- ScaleData(seur, features = rownames(seur))
 
 ## alternative: 
-seur <- SCTransform(seur,conserve.memory=F,verbose=T,return.only.var.genes=F,variable.features.n = nrow(seur[['RNA']]))
+seur <- SCTransform(seur,conserve.memory=F,verbose=T,return.only.var.genes=F,
+                    variable.features.n = nrow(seur[['RNA']]))
 dim(seur)
 # saveRDS(seur, paste0('objects/',INPUT_NAME,'/',OBJ_NAME_NORM))
 
 ##  PCA
-seur <- RunPCA(seur,verbose=F)
+seur <- RunPCA(seur,verbose=T)
 plot(100 * seur@reductions$pca@stdev^2 / seur@reductions$pca@misc$total.variance,
      pch=20,xlab="Principal Component",ylab="% variance explained",log="y")
 
+dev.off()
 
+PC_NUMBER = 22
+
+pdf(paste0('Results/',INPUT_NAME,'/QC/plots_',INPUT_NAME,'_','mito_',MIT_CUT_OFF,'_lib_',LIB_SIZE_CUT_OFF,'.pdf'))
 
 ## tSNE
 seur <- RunTSNE(seur,dims=1:PC_NUMBER,reduction="pca",perplexity=30)
@@ -161,8 +181,9 @@ ggplot(df_umap, aes(x=UMAP_1, y=UMAP_2, color=library_size))+geom_point()+theme_
 ggplot(df_umap, aes(x=UMAP_1, y=UMAP_2, color=mito_perc))+geom_point()+theme_bw()+scale_color_viridis(direction = -1)+ggtitle(TITLE_umap)+labs(caption = INPUT_NAME)
 ggplot(df_umap, aes(x=UMAP_1, y=UMAP_2, color=n_expressed))+geom_point()+theme_bw()+scale_color_viridis(direction = -1)+ggtitle(TITLE_umap)+labs(caption = INPUT_NAME)
 
+
 dev.off()
 
-
-
+# objects/rat_LEW_M09_WK_009_3pr_v3/2.seur_dimRed_rat_LEW_M09_WK_009_3pr_v3_mito_50_lib_1000.rds
+# objects/rat_DA_M09_WK_008_3pr_v3/2.seur_dimRed_rat_DA_M09_WK_008_3pr_v3_mito_50_lib_1000.rds
 

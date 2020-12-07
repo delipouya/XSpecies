@@ -77,6 +77,7 @@ clusters_markers <- sapply(0:(length(levels(merged_samples))-1), function(i){
 names(clusters_markers) = paste0('cluster_', 0:(length(levels(merged_samples))-1) )
 lapply(clusters_markers, head)
 saveRDS(clusters_markers, 'Results/preproc_rats/merged_samples_clusters_markers.rds')
+clusters_markers <- readRDS('Results/preproc_rats/merged_samples_clusters_markers.rds')
 
 
 
@@ -204,25 +205,4 @@ ggplot(umap_emb, aes(x=UMAP_1, y=UMAP_2))+
   geom_point(aes(color=ApoE_expression),alpha=0.7,size=2)+
   theme_classic()+scale_color_viridis(direction = -1,option = "plasma")
 
-
-
-
-
-
-data = GetAssayData(merged_samples)
-dim(data)
-data = t(data)
-dim(data)
-getHead(data)
-#pc_res = prcomp(data, scale = FALSE)
-#pc_res$x
-#loading_df = data.frame(pc_res$rotation) ## coefficients of the linear combination of the features
-
-
-
-BiocManager::install('fastICA')
-test <- GetAssayData(merged_samples_split[[1]])
-test <- t(test)
-getHead(test)
-ics_res = fastICA(test, 50)
 

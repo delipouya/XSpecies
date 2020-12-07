@@ -19,14 +19,15 @@ Initialize <- function(){
     install.packages("BiocManager")
   
   options(stringsAsFactors = FALSE)
-  listOfPackages <- c('BiocManager', 'Seurat', 'viridis', 'org.Rn.eg.db', 'stringr', 'ReactomePA',  'biomaRt', 
+  listOfPackages <- c('BiocManager', 'Seurat', 'viridis', 'org.Rn.eg.db', 'stringr',  'biomaRt', 
                       'ggplot2', 'scClustViz', 'org.Hs.eg.db', 'AnnotationDbi', 'presto' ,
                       'scran', 'Matrix', 'devtools', 'AUCell', 'GSEABase','GSVA', 'fgsea','limma', 'SCINA',
-                      'DelayedArray', 'DelayedMatrixStats','monocle', 'multtest', 'celda', 'gprofiler2')
+                      'DelayedArray', 'DelayedMatrixStats','monocle', 'multtest', 'celda', 'gprofiler2',
+                      'stringr', 'harmony', 'SoupX')
   ipak(listOfPackages)
+  
 }
 
-# 'SoupX' ,  , 'pathfindR'
 
 
 colorPalatte <- c(
@@ -52,7 +53,7 @@ getUnemptyList_bool <- function(chrList){ !is.na(chrList) & chrList != '' }
 
 
 
-Plot.tsne.gene.expr <- function(tsne.gene.df, title,subtitle){
+Plot.tsne.gene.expr <- function(tsne.gene.df, title='',subtitle=''){
   colnames(tsne.gene.df)[3] <- 'expression'
   ggplot(tsne.gene.df, aes(x=tSNE_1, y=tSNE_2, color=expression))+
     geom_point(alpha=0.7)+theme_classic()+ggtitle(title,subtitle = subtitle) + 
@@ -86,6 +87,72 @@ getPcaDF <- function(seur){
   DataFrame$PC_2 <- as.numeric(DataFrame$PC_2)
   return(DataFrame) 
 }
+
+detach_package <- function(pkg, character.only = FALSE)
+{
+  if(!character.only)
+  {
+    pkg <- deparse(substitute(pkg))
+  }
+  search_item <- paste("package", pkg, sep = ":")
+  while(search_item %in% search())
+  {
+    detach(search_item, unload = TRUE, character.only = TRUE)
+  }
+}
+
+
+get_manual_labels <- function(){
+  
+  ### setting the cluster names manually
+  clusters_rat_DA_01 <- data.frame(cluster=paste0('cluster_', c(0:11)))
+  clusters_rat_DA_01$cell_type <- c(rep('Hepatocyte',4),'KC', 'LSEC','Stellate_cell','T_cell',
+                                    'Immune_cell', 'T_cell','LSEC','DC_cell')
+  
+  clusters_rat_DA_02 <- data.frame(cluster=paste0('cluster_', c(0:18)))
+  clusters_rat_DA_02$cell_type <- c(rep('Hepatocyte',6),'LSEC','Hepatocyte','KC', rep('Hepatocyte',2),
+                                    'Stellate_cell','Immune_cell','T_cell','T_cell','Immune_cell',
+                                    'DC_cell','Prolif_cell','Erythrocyte')
+  
+  clusters_rat_Lew_01 <- data.frame(cluster=paste0('cluster_', c(0:15)))
+  clusters_rat_Lew_01$cell_type <- c(rep('Hepatocyte',4),'LSEC','Hepatocyte','KC','Stellate_cell',
+                                     'KC','T_cell', 'Hepatocyte', 'Immune_cell','T_cell', 'Hepatocyte',
+                                     'Immune_cell','DC_cell')
+  
+  clusters_rat_Lew_02 <- data.frame(cluster=paste0('cluster_', c(0:14)))
+  clusters_rat_Lew_02$cell_type <- c(rep('Hepatocyte',4), 'KC', 'Hepatocyte','LSEC','Hepatocyte', 
+                                     'Stellate_cell','KC','T_cell', 'DC_cell', 'T_cell', 'Immune_cell', 
+                                     'Stellate_cell')
+  
+  
+  clusters_rat_DA_M_10WK_003 <- data.frame(cluster=paste0('cluster_', c(0:9)))
+  clusters_rat_DA_M_10WK_003$cell_type = c(rep('Hepatocyte',2), 'LSEC','Hepatocyte' ,'KC','Stellate_cell',
+                                           'Hepatocyte','Immune_cell','T_cell','DC_cell' )
+  
+  
+  cluster_cell_type_df <- list(clusters_rat_DA_M_10WK_003, clusters_rat_DA_01, 
+                               clusters_rat_Lew_01, clusters_rat_Lew_02, clusters_rat_DA_02)
+  names(cluster_cell_type_df) = c('rat_DA_M_10WK_003','rat_DA_01', 'rat_Lew_01', 'rat_Lew_02', 'rat_DA_02')
+  
+  return(cluster_cell_type_df)
+}
+
+
+colorPalatte <- c(
+  "dodgerblue2", "#E31A1C", # red
+  "green4",
+  "#6A3D9A", # purple
+  "#FF7F00", # orange
+  "gold1",
+  "skyblue2", "#FB9A99", # lt pink
+  "palegreen2",
+  "#CAB2D6", # lt purple
+  "#FDBF6F", # lt orange
+  "gray70", "khaki2",
+  "maroon", "orchid1", "deeppink1", "blue1", "steelblue4",
+  "darkturquoise", "green1", "yellow4", "yellow3",
+  "brown"
+)
 
 
 get_vector_of_lables <- function(Cell_type_assigned, seur){

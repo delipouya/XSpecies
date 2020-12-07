@@ -50,4 +50,9 @@ for(cell_index in 1:length(candidateGenes_mapped)){
 
 dev.off()
 
-
+aMarker_symbol = 'Hp'
+seur_data = GetAssayData(seur)
+aMarker_expression <- seur_data[aMarker_symbol,]
+tsne_df <- as.data.frame(cbind(getEmb(seur, 'tsne'),gene.expr=aMarker_expression))
+p= Plot.tsne.gene.expr(tsne_df, aMarker_symbol)
+p
